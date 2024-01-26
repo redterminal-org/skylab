@@ -16,3 +16,10 @@ I think the gemmail client should work as follows. If you have ideas for how thi
 - Maybe quick reply function bypassing the draft composer (also like BBS)
 
 See localhost/frontend_design directory for some ideas drawn out
+
+## More features
+- Check gemini client certificate against list of misfin keys, and then if it doesn't match anything against the list of external keys. Let ppl add gemini certs using a temporary password.
+
+## functions
+- Sending mail
+- Moving mail between folders
