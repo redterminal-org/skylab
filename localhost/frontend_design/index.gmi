@@ -1,0 +1,16 @@
+# Misfin ✉️
+=> vviw7643ftwnw4fn ◉ Unread Email Subject - sender0@host.org
+	Example text from the beginning of the most recently received email...
+=> vviw7643ftwnw4fn ◉ Unread Email Subject - sender1@host1.org
+	Example text from the beginning of the email...
+=> vviw7643ftwnw4fn ◎ Read Email Subject - sender2@host2.org
+	Example text from the beginning of the email...
+=> vviw7643ftwnw4fn ◎  Read Email Subject - sender3@host3.org
+	Example text from the beginning of the email...
+
+=> inbox.gmi 📪 Inbox (10)
+=> archive 🗄️ Archive (607)
+=> sent 📤 Sent (30)
+=> drafts 📝 Drafts
+=> trash 🗑️ Trash (172)
+=> tags 🏷️ Tags
