@@ -1,6 +1,6 @@
 # Skylab Misfin Client
 
-Anyway, I think the gemmail client should work as follows. If you have ideas for how things should work differently let me know!
+I think the gemmail client should work as follows. If you have ideas for how things should work differently let me know!
 
 => gemini://satch.xyz/skylab/ Skylab on Gemini
 
@@ -13,3 +13,6 @@ Anyway, I think the gemmail client should work as follows. If you have ideas for
 ## Inbox layout and design
 - Imitates tradition webmail interface. Front page should have links to Trash, Archive, Sent, and Drafts folder, as well as maybe 'More' or some type of tags system. Below that (hopefully not too far down) is links to read various new mail. Emoji icons can indicate which mail is unread, as well as built in gemini client read indicators such as are in Lagrange.
 - Draft composer similar to BBS
+- Maybe quick reply function bypassing the draft composer (also like BBS)
+
+See localhost/frontend_design directory for some ideas drawn out
