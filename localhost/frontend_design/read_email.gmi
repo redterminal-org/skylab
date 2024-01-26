@@ -1,0 +1,16 @@
+# Misfin ✉️
+
+## Unread Email Subject
+
+From: sender0@host.org
+
+	Example text from the beginning of the most recently received email...
+	Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...Example text from the email...
+
+=> reply?message-id ✍️ Quick Reply
+=> compose?message-id 📝 Draft Reply
+=> ?unread ◉ Mark Unread
+=> archive 📥 Archive
+=> trash 🗑️ Delete
+=> ?tag 🏷️ Tag
+=> inbox.gmi 📪 Inbox
