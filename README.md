@@ -1,9 +1,8 @@
-# Hi Valeria!
+# Skylab Misfin Client
 
 Anyway, I think the gemmail client should work as follows. If you have ideas for how things should work differently let me know!
 
-## Name: **Skylab** Misfin Client
-gemini://satch.xyz/skylab/
+=> gemini://satch.xyz/skylab/ Skylab on Gemini
 
 ## Front Page + client certs
 - Url is `gemini://mail.example.org` or whatever, and the server serves an index file which is just some static gemtext if you do not have a client certificate activated
