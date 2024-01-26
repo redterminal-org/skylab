@@ -5,7 +5,6 @@ import (
     "os"
     "errors"
     "net/url"
-    "path/filename"
     "strings"
     "time"
 
