@@ -48,13 +48,16 @@ func FetchGembox(address, certFilename string) error {
 
 	// Parse gembox
 	gbox, err := ParseGembox(string(gemboxData))
+    if err != nil {
+        return err
+    }
 
 	// Create INBOX directory if it doesn't exist
 	inboxDir := "./INBOX/"
 	if _, err := os.Stat(inboxDir); os.IsNotExist(err) {
 		err := os.Mkdir(inboxDir, 0755)
 		if err != nil {
-			panic(err)
+			return(err)
 		}
 	}
 
@@ -90,7 +93,7 @@ func isNewMessage(mail Message) bool {
 func generateFilename(timestamp time.Time, sender string) string {
 	timeStr := timestamp.Format("2006-01-02T15:04:05")
 	hash := md5.Sum([]byte(timeStr + sender))
-	return fmt.Sprintf("%x.msg", hash)
+	return fmt.Sprintf("%x.msfn", hash)
 }
 
 func ParseGembox(gemboxData string) ([]Message, error) {
@@ -119,6 +122,7 @@ func ParseGembox(gemboxData string) ([]Message, error) {
 			case 2:
 				timestampStrings := strings.Split(line, ",")
                 for _, ts := range timestampStrings {
+                    ts = strings.TrimSpace(ts)
                     timestamp, err := time.Parse(time.RFC3339, ts)
                     if err != nil {
                         return nil, err
