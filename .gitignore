@@ -1,1 +1,6 @@
 cert.pem
+INBOX/*
+Drafts/*
+Sent/*
+Trash/*
+Archive/*
