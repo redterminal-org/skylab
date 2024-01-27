@@ -24,12 +24,12 @@ See localhost/frontend_design directory for some ideas drawn out
 
 ## Packages, functions, types
 - main
- - type Config struct
- - func main()
+  - type Config struct
+  - func main()
 - fetch
- - type Message struct
- - func FetchGembox
- - func isNewMessage
- - func generateFilename
- - func ParseGembox
- - func isolateAddress
+  - type Message struct
+  - func FetchGembox
+  - func isNewMessage
+  - func generateFilename
+  - func ParseGembox
+  - func isolateAddress
