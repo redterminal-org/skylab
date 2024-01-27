@@ -10,15 +10,18 @@ import (
 	"strings"
 	"time"
     "bufio"
+    "errors"
 
 	"github.com/clseibold/go-gemini"
-    "gitlab.com/clseibold/misfin-server/gemmail"
 )
 
-// GemBox struct defined with necessary metadata pieces
-type GemBox struct {
-	Identifier any // For your use
-	Mails      []gemmail.GemMail
+type Message struct {
+	Senders     []string
+	Recipients  []string
+	Timestamps  []time.Time
+	Subject     string
+	MessageBody string
+    FullText    string
 }
 
 // FetchGembox fetches gembox from the given address using the client certificate
@@ -44,7 +47,7 @@ func FetchGembox(address, certFilename string) error {
 	}
 
 	// Parse gembox
-	gbox := ParseGemBox(address, string(gemboxData))
+	gbox, err := ParseGembox(string(gemboxData))
 
 	// Create INBOX directory if it doesn't exist
 	inboxDir := "./INBOX/"
@@ -56,7 +59,7 @@ func FetchGembox(address, certFilename string) error {
 	}
 
 	// Process gemmails
-	for _, mail := range gbox.Mails {
+	for _, mail := range gbox {
 		// Check if message is new (not already saved)
 		if !isNewMessage(mail) {
 			continue
@@ -64,9 +67,9 @@ func FetchGembox(address, certFilename string) error {
 
 		// Generate filename hash
         // Timestamps[0] certainly doesn't work and is all made up. We need to check the ParseGemBox function to see how it works
-		filename := generateFilename(mail.Timestamps[0].Value, mail.Senders[0].Address)
+		filename := generateFilename(mail.Timestamps[0], isolateAddress(mail.Senders[0]))
         var lines []string
-    	for _, line := range mail.GemtextLines {
+    	for _, line := range mail.MessageBody {
     		lines = append(lines, line.String())
     	}
         content := string(mail.Subject) + "\n" + strings.Join(lines, "\n")
@@ -84,9 +87,9 @@ func FetchGembox(address, certFilename string) error {
 }
 
 // isNewMessage checks if the message is new (not already saved)
-func isNewMessage(mail gemmail.GemMail) bool {
+func isNewMessage(mail Message) bool {
 	// Check if message file already exists
-	filename := generateFilename(mail.Timestamps[0].Value, mail.Senders[0].Address)
+	filename := generateFilename(mail.Timestamps[0].Value, isolateAddress(mail.Senders[0]))
 	_, err := os.Stat("../INBOX/" + filename)
 	return os.IsNotExist(err)
 }
@@ -98,34 +101,68 @@ func generateFilename(timestamp time.Time, sender string) string {
 	return fmt.Sprintf("%x.msg", hash)
 }
 
-func ParseGemBox(identifier any, gembox string) GemBox {
-	var result GemBox
-	result.Mails = make([]gemmail.GemMail, 0)
-	result.Identifier = identifier
+func ParseGembox(gemboxData string) ([]Message, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
 
-	scanner := bufio.NewScanner(strings.NewReader(gembox))
-	// TODO: scanner.Err()
+	scanner := bufio.NewScanner(strings.NewReader(gemboxData))
+	var messages []Message
+	var message Message
+	var linesCounter int
 
-	var currentGemMail strings.Builder
 	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
+		line := scanner.Text()
+		message.FullText += line + "\n" // Append line to FullText
 		if strings.HasPrefix(line, "<=====") {
-			// Append current GemMail to list
-			result.Mails = append(result.Mails, gemmail.ParseGemMail(currentGemMail.String()))
-
-			// Start a new GemMail
-			currentGemMail.Reset()
+			if linesCounter < 3 {
+				return nil, errors.New("metadata lines are not properly formatted")
+			}
+			messages = append(messages, message)
+			message = Message{} // Start a new message
+			linesCounter = 0
 		} else {
-			currentGemMail.WriteString(line)
-			currentGemMail.WriteByte('\n')
+			switch linesCounter {
+			case 0:
+				message.Senders = strings.Split(line, ",")
+			case 1:
+				message.Recipients = strings.Split(line, ",")
+			case 2:
+				timestampStrings := strings.Split(line, ",")
+                for _, ts := range timestampStrings {
+                    timestamp, err := time.Parse(time.RFC3339, ts)
+                    if err != nil {
+                        return nil, err
+                    }
+                    message.Timestamps = append(message.Timestamps, timestamp)
+                }
+			default:
+				if strings.HasPrefix(line, "# ") && message.Subject == "" {
+					message.Subject = line
+				} else {
+					message.MessageBody += line + "\n"
+				}
+			}
+			linesCounter++
 		}
 	}
 
-	// Append last GemMail, if not empty
-	if strings.TrimSpace(currentGemMail.String()) != "" {
-		parsedGemMail := gemmail.ParseGemMail(currentGemMail.String())
-		result.Mails = append(result.Mails, parsedGemMail)
+	if err := scanner.Err(); err != nil {
+		return nil, err
 	}
 
-	return result
+	return messages, nil
+}
+
+func isolateAddress(input string) string {
+    // Trim leading whitespace
+    input = strings.TrimSpace(input)
+    // Find first space
+    spaceIndex := strings.Index(input, " ")
+    if spaceIndex == -1 {
+		return input
+	}
+    return input[:spaceIndex]
 }
