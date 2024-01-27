@@ -65,17 +65,9 @@ func FetchGembox(address, certFilename string) error {
 			continue
 		}
 
-		// Generate filename hash
-        // Timestamps[0] certainly doesn't work and is all made up. We need to check the ParseGemBox function to see how it works
 		filename := generateFilename(mail.Timestamps[0], isolateAddress(mail.Senders[0]))
-        var lines []string
-    	for _, line := range mail.MessageBody {
-    		lines = append(lines, line.String())
-    	}
-        content := string(mail.Subject) + "\n" + strings.Join(lines, "\n")
-
 		// Save message to file
-		err := ioutil.WriteFile(inboxDir+filename, []byte(content), 0644)
+		err := ioutil.WriteFile(inboxDir+filename, []byte(mail.FullText), 0644)
 		if err != nil {
 			fmt.Println("Error saving message:", err)
 		}
@@ -89,7 +81,7 @@ func FetchGembox(address, certFilename string) error {
 // isNewMessage checks if the message is new (not already saved)
 func isNewMessage(mail Message) bool {
 	// Check if message file already exists
-	filename := generateFilename(mail.Timestamps[0].Value, isolateAddress(mail.Senders[0]))
+	filename := generateFilename(mail.Timestamps[0], isolateAddress(mail.Senders[0]))
 	_, err := os.Stat("../INBOX/" + filename)
 	return os.IsNotExist(err)
 }
@@ -102,11 +94,6 @@ func generateFilename(timestamp time.Time, sender string) string {
 }
 
 func ParseGembox(gemboxData string) ([]Message, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
 
 	scanner := bufio.NewScanner(strings.NewReader(gemboxData))
 	var messages []Message
