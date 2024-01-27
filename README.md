@@ -19,7 +19,17 @@ See localhost/frontend_design directory for some ideas drawn out
 
 ## More features
 - Check gemini client certificate against list of misfin keys, and then if it doesn't match anything against the list of external keys. Let ppl add gemini certs using a temporary password.
-
-## functions
 - Sending mail
 - Moving mail between folders
+
+## Packages, functions, types
+- main
+ - type Config struct
+ - func main()
+- fetch
+ - type Message struct
+ - func FetchGembox
+ - func isNewMessage
+ - func generateFilename
+ - func ParseGembox
+ - func isolateAddress
