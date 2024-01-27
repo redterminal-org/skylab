@@ -2,29 +2,16 @@ package main
 
 import (
     "git.sr.ht/~satchlj/skylab/fetch"
-//	"github.com/clseibold/go-gemini"
-//    "fmt"
-//	"io/ioutil"
+    "git.sr.ht/~satchlj/skylab/config"
 )
 
 var Version string = "0.0.1" // Haha
 
-type Config struct {
-	GeminiFetchAddress string
-	CertFilename       string
-	// Add other configuration fields as needed
-}
-
 func main() {
     // Configuration
-    config := Config{
-        GeminiFetchAddress: "gemini://satch.xyz:1958/fetch",
-        CertFilename:       "cert.pem",
-        // Add other configuration fields as needed
-    }
-
+    cfg := config.ExportConfig()
     // Fetch gembox from Gemini server
-    err := fetch.FetchGembox(config.GeminiFetchAddress, config.CertFilename)
+    err := fetch.FetchGembox(cfg.GeminiFetchAddress, cfg.CertFilename)
     if err != nil {
         panic(err)
     }
