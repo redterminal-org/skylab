@@ -10,6 +10,7 @@ import (
 func main() {
     cfg := config.ExportConfig()
     fmt.Print("20 text/gemini\r\n")
+	fmt.Println("# Inbox ✉️")
     err := fetch.FetchGembox(cfg.GeminiFetchAddress, cfg.CertFilename)
     if err != nil {
         fmt.Println("Error fetching new mail:")

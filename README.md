@@ -23,13 +23,33 @@ See localhost/frontend_design directory for some ideas drawn out
 - Moving mail between folders
 
 ## Packages, functions, types
-- main
-  - type Config struct
-  - func main()
+- cgi endpoints
+  - inbox
 - fetch
   - type Message struct
   - func FetchGembox
   - func isNewMessage
-  - func generateFilename
   - func ParseGembox
   - func isolateAddress
+- config
+  - type Config struct
+  - func ExportConfig
+- tools
+  - type Skymail struct
+  - func GenerateFilename
+  - func GenerateID
+  - func ParseSkymail
+  - func IsolateAddress
+  - func PrintLinkAndPreview
+  - func GetMessageLinkLine
+  - func GetMailPreview
+  - func Tag
+  - func Untag
+  - func isDirEmpty
+  - func HasTag
+  - func WalkTag
+
+Next steps:
+- figure out how to sort mail by timestamp
+- Create mail cgi endpoint
+- create index.gmi
