@@ -1,9 +1,6 @@
-// fetch.go
-
 package fetch
 
 import (
-	"crypto/md5"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -13,14 +10,12 @@ import (
     "errors"
 
 	"github.com/clseibold/go-gemini"
+    "git.sr.ht/~satchlj/skylab/tools"
 )
 
 type Message struct {
 	Senders     []string
-	Recipients  []string
 	Timestamps  []time.Time
-	Subject     string
-	MessageBody string
     FullText    string
 }
 
@@ -53,7 +48,7 @@ func FetchGembox(address, certFilename string) error {
     }
 
 	// Create INBOX directory if it doesn't exist
-	inboxDir := "./INBOX/"
+	inboxDir := "../INBOX/"
 	if _, err := os.Stat(inboxDir); os.IsNotExist(err) {
 		err := os.Mkdir(inboxDir, 0755)
 		if err != nil {
@@ -68,7 +63,7 @@ func FetchGembox(address, certFilename string) error {
 			continue
 		}
 
-		filename := generateFilename(mail.Timestamps[0], isolateAddress(mail.Senders[0]))
+		filename := tools.GenerateFilename(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
 		// Save message to file
 		err := ioutil.WriteFile(inboxDir+filename, []byte(mail.FullText), 0644)
 		if err != nil {
@@ -76,7 +71,7 @@ func FetchGembox(address, certFilename string) error {
 		}
 
 		// Print confirmation
-		fmt.Println("Message saved:", filename)
+		// fmt.Println("Message saved:", filename)
 	}
     return nil
 }
@@ -84,16 +79,9 @@ func FetchGembox(address, certFilename string) error {
 // isNewMessage checks if the message is new (not already saved)
 func isNewMessage(mail Message) bool {
 	// Check if message file already exists
-	filename := generateFilename(mail.Timestamps[0], isolateAddress(mail.Senders[0]))
+	filename := tools.GenerateFilename(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
 	_, err := os.Stat("../INBOX/" + filename)
 	return os.IsNotExist(err)
-}
-
-// generateFilename generates a filename hash using the time and sender address
-func generateFilename(timestamp time.Time, sender string) string {
-	timeStr := timestamp.Format("2006-01-02T15:04:05")
-	hash := md5.Sum([]byte(timeStr + sender))
-	return fmt.Sprintf("%x.msfn", hash)
 }
 
 func ParseGembox(gemboxData string) ([]Message, error) {
@@ -117,8 +105,6 @@ func ParseGembox(gemboxData string) ([]Message, error) {
 			switch linesCounter {
 			case 0:
 				message.Senders = strings.Split(line, ",")
-			case 1:
-				message.Recipients = strings.Split(line, ",")
 			case 2:
 				timestampStrings := strings.Split(line, ",")
                 for _, ts := range timestampStrings {
@@ -129,12 +115,6 @@ func ParseGembox(gemboxData string) ([]Message, error) {
                     }
                     message.Timestamps = append(message.Timestamps, timestamp)
                 }
-			default:
-				if strings.HasPrefix(line, "# ") && message.Subject == "" {
-					message.Subject = line
-				} else {
-					message.MessageBody += line + "\n"
-				}
 			}
 			linesCounter++
 		}
@@ -145,15 +125,4 @@ func ParseGembox(gemboxData string) ([]Message, error) {
 	}
 
 	return messages, nil
-}
-
-func isolateAddress(input string) string {
-    // Trim leading whitespace
-    input = strings.TrimSpace(input)
-    // Find first space
-    spaceIndex := strings.Index(input, " ")
-    if spaceIndex == -1 {
-		return input
-	}
-    return input[:spaceIndex]
 }
