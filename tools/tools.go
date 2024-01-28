@@ -316,13 +316,10 @@ func WalkTag(tagName string, n ...int) error {
 	if len(n) > 0 {
 		limit = n[0]
 	} else {
-		limit = -1
-	}
-
-	if limit > len(msgs) {
 		limit = len(msgs)
 	}
-    // Print the sorted outputs
+
+	// Print the sorted outputs
 	for _, output := range msgs[:limit] {
         fmt.Println(output)
     }
