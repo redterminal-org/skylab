@@ -9,6 +9,7 @@ import (
     "bufio"
     "path/filepath"
 	"io"
+	"sort"
 )
 
 type Skymail struct {
@@ -87,28 +88,30 @@ func IsolateAddress(input string) string {
     return input[:spaceIndex]
 }
 
-func PrintLinkAndPreview(msgid string) (error) {
+func PrintLinkAndPreview(msgid string) (string, error) {
     // Get file contents as message string
     filename := filepath.Join("..", "STORE", msgid+".msfn")
     message, err := ParseSkymail(filename)
     if err != nil {
-        return err
+        return "", err
     }
     linkline, err := GetMessageLinkLine(message, msgid)
     if err != nil {
-        return err
+        return "", err
     }
     preview, err := GetMailPreview(message)
     if err != nil {
-        return err
+        return "", err
     }
-	fmt.Printf("%s\n%s\n", linkline, preview)
-	return nil
+    // Construct the formatted text
+    formattedText := fmt.Sprintf("%s\n%s", linkline, preview)
+    return formattedText, nil
 }
 
 // Create message link line
 func GetMessageLinkLine(message Skymail, msgid string) (string, error) {
 	icon := "◎"
+	subject := "No Subject"
 	// Check to see if unread
 	unread, err := HasTag(msgid, "Unread")
 	if err != nil {
@@ -117,8 +120,12 @@ func GetMessageLinkLine(message Skymail, msgid string) (string, error) {
 	if unread {
 		icon = "◉"
 	}
+	if message.Subject != "" {
+		subject = message.Subject
+	}
+	ts := message.Timestamps[0]
 	// Create string
-	linkString := fmt.Sprintf("=> /mail?%s %s %s - %s", msgid, icon, message.Subject, IsolateAddress(message.Senders[0]))
+	linkString := fmt.Sprintf("=> /mail?%s %s %s:  %s — %s", msgid, icon, ts.Format("2006-01-02 03:04 PM"), subject, IsolateAddress(message.Senders[0]))
 	return linkString, nil
 }
 
@@ -262,7 +269,8 @@ func HasTag(msgid, tagName string) (bool, error) {
 
 func WalkTag(tagName string) error {
 	dirName := filepath.Join("..", "tags", tagName)
-	return filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
+	var msgs []string
+	err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("filepath.Walk error: %w", err)
 		}
@@ -272,10 +280,39 @@ func WalkTag(tagName string) error {
 		} else if lstat.Mode()&os.ModeSymlink != 0 {
 			symlinkName := filepath.Base(path)
             msgid := strings.TrimSuffix(symlinkName, ".msfn")
-			if err := PrintLinkAndPreview(msgid); err != nil {
+			output, err := PrintLinkAndPreview(msgid)
+			if err != nil {
 				fmt.Println(err)
+				return nil
 			}
+			msgs = append (msgs, output)
 		}
         return nil
     })
+	if err != nil {
+        return err
+    }
+	sortByTime := func(i, j int) bool {
+        timeFormat := "2006-01-02 03:04 PM"
+        strI := msgs[i][46:65] // Extract timestamp from string i
+        strJ := msgs[j][46:65] // Extract timestamp from string j
+        timeI, err := time.Parse(timeFormat, strI)
+		if err != nil {
+			fmt.Println(err)
+		}
+        timeJ, err := time.Parse(timeFormat, strJ)
+		if err != nil {
+			fmt.Println(err)
+		}
+        return timeI.After(timeJ)
+    }
+	// Sort the outputs slice
+    sort.Slice(msgs, sortByTime)
+
+    // Print the sorted outputs
+    for _, output := range msgs {
+        fmt.Println(output)
+    }
+
+    return nil
 }
