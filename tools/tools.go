@@ -104,7 +104,7 @@ func PrintLinkAndPreview(msgid string) (string, error) {
         return "", err
     }
     // Construct the formatted text
-    formattedText := fmt.Sprintf("%s\n%s", linkline, preview)
+    formattedText := fmt.Sprintf("%s\n%s\n", linkline, preview)
     return formattedText, nil
 }
 
@@ -123,9 +123,14 @@ func GetMessageLinkLine(message Skymail, msgid string) (string, error) {
 	if message.Subject != "" {
 		subject = message.Subject
 	}
+	maxLength := 50
+    if len(subject) > maxLength {
+        // If the input is larger than maxLength, truncate it and add "..."
+        subject = subject[:maxLength-4] + "... "
+    }
 	ts := message.Timestamps[0]
 	// Create string
-	linkString := fmt.Sprintf("=> /mail?%s %s %s:  %s — %s", msgid, icon, ts.Format("2006-01-02 03:04 PM"), subject, IsolateAddress(message.Senders[0]))
+	linkString := fmt.Sprintf("=> /mail?%s %s %s — %s: %s", msgid, icon, ts.Format("2006-01-02 03:04 PM"), IsolateAddress(message.Senders[0]), subject)
 	return linkString, nil
 }
 
