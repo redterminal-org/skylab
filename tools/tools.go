@@ -73,6 +73,9 @@ func ParseSkymail(skymailFilename string) (Skymail, error) {
 	if err := scanner.Err(); err != nil {
 		return Skymail{}, err
 	}
+	if message.Subject == "" {
+		message.Subject = "No Subject"
+	}
 
 	return message, nil
 }
@@ -320,4 +323,13 @@ func WalkTag(tagName string) error {
     }
 
     return nil
+}
+
+func FormatSender(sender string) string {
+    parts := strings.SplitN(sender, " ", 2)
+    if len(parts) == 2 {
+        return parts[1] + " (" + parts[0] + ")"
+    }
+    // If the input string doesn't contain both email and name, return it as is
+    return sender
 }
