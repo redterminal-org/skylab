@@ -22,7 +22,7 @@ type Skymail struct {
 
 func GenerateFilename(timestamp time.Time, sender string) string {
 	hash := GenerateID(timestamp, sender)
-	return fmt.Sprintf("%x.msfn", hash)
+	return fmt.Sprintf("%s.msfn", hash)
 }
 
 func GenerateID(timestamp time.Time, sender string) string {
@@ -186,8 +186,6 @@ func Tag(msgid, tagName string) error {
     if err := os.Symlink(filepath.Join("..", "STORE", msgid+".msfn"), destPath); err != nil {
         return err
     }
-
-    fmt.Printf("Tagged message %s as %s\n", msgid, tagName)
     return nil
 }
 
@@ -200,7 +198,7 @@ func Untag(msgid, tagName string) error {
     _, err := os.Lstat(symlinkPath)
     if err != nil {
         if os.IsNotExist(err) {
-            return fmt.Errorf("Message is not in %s", tagName)
+            return nil
         }
         return err
     }
@@ -209,8 +207,6 @@ func Untag(msgid, tagName string) error {
     if err := os.Remove(symlinkPath); err != nil {
         return err
     }
-
-    fmt.Printf("Removed message from %s\n", symlinkPath)
 
 	    // Check if the tagName directory is empty
     dir := filepath.Join("..", "tags", tagName)
@@ -224,7 +220,6 @@ func Untag(msgid, tagName string) error {
         if err := os.Remove(dir); err != nil {
             return err
         }
-        fmt.Printf("Removed directory: %s\n", dir)
     }
 
     return nil
@@ -275,7 +270,7 @@ func HasTag(msgid, tagName string) (bool, error) {
     return target != "", nil
 }
 
-func WalkTag(tagName string) error {
+func WalkTag(tagName string, n ...int) error {
 	dirName := filepath.Join("..", "tags", tagName)
 	var msgs []string
 	err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
@@ -316,9 +311,19 @@ func WalkTag(tagName string) error {
     }
 	// Sort the outputs slice
     sort.Slice(msgs, sortByTime)
+	// Limit the number of printed things
+	var limit int
+	if len(n) > 0 {
+		limit = n[0]
+	} else {
+		limit = -1
+	}
 
+	if limit > len(msgs) {
+		limit = len(msgs)
+	}
     // Print the sorted outputs
-    for _, output := range msgs {
+	for _, output := range msgs[:limit] {
         fmt.Println(output)
     }
 
