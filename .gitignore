@@ -1,7 +1,4 @@
 cert.pem
-INBOX/*
-Drafts/*
-Sent/*
-Trash/*
-Archive/*
+STORE/*
+tags/*
 localhost/inbox

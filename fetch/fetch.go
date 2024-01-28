@@ -47,8 +47,8 @@ func FetchGembox(address, certFilename string) error {
         return err
     }
 
-	// Create INBOX directory if it doesn't exist
-	inboxDir := "../INBOX/"
+	// Create STORE directory if it doesn't exist
+	inboxDir := "../STORE/"
 	if _, err := os.Stat(inboxDir); os.IsNotExist(err) {
 		err := os.Mkdir(inboxDir, 0755)
 		if err != nil {
@@ -63,13 +63,19 @@ func FetchGembox(address, certFilename string) error {
 			continue
 		}
 
-		filename := tools.GenerateFilename(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
+		msgid := tools.GenerateID(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
+		filename := msgid + ".msfn"
 		// Save message to file
 		err := ioutil.WriteFile(inboxDir+filename, []byte(mail.FullText), 0644)
 		if err != nil {
 			fmt.Println("Error saving message:", err)
 		}
-
+		if err := tools.Tag(msgid, "Unread"); err != nil {
+			fmt.Println("Error tagging new messages as unread:", err)
+		}
+		if err := tools.Tag(msgid, "Inbox"); err != nil {
+			fmt.Println("Error adding new message to Inbox:", err)
+		}
 		// Print confirmation
 		// fmt.Println("Message saved:", filename)
 	}
@@ -80,7 +86,7 @@ func FetchGembox(address, certFilename string) error {
 func isNewMessage(mail Message) bool {
 	// Check if message file already exists
 	filename := tools.GenerateFilename(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
-	_, err := os.Stat("../INBOX/" + filename)
+	_, err := os.Stat("../STORE/" + filename)
 	return os.IsNotExist(err)
 }
 
@@ -93,7 +99,6 @@ func ParseGembox(gemboxData string) ([]Message, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		message.FullText += line + "\n" // Append line to FullText
 		if strings.HasPrefix(line, "<=====") {
 			if linesCounter < 3 {
 				return nil, errors.New("metadata lines are not properly formatted")
@@ -102,6 +107,7 @@ func ParseGembox(gemboxData string) ([]Message, error) {
 			message = Message{} // Start a new message
 			linesCounter = 0
 		} else {
+			message.FullText += line + "\n" // Append line to FullText
 			switch linesCounter {
 			case 0:
 				message.Senders = strings.Split(line, ",")

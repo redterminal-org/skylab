@@ -4,6 +4,7 @@ import (
     "fmt"
 	"git.sr.ht/~satchlj/skylab/fetch"
 	"git.sr.ht/~satchlj/skylab/config"
+	"git.sr.ht/~satchlj/skylab/tools"
 )
 
 func main() {
@@ -14,6 +15,8 @@ func main() {
         fmt.Println("Error fetching new mail:")
         fmt.Println(err)
     }
-    fmt.Println("=> vviw7643ftwnw4fn ◉ Unread Email Subject - sender0@host.org")
-    fmt.Println("Example text from the beginning of the most recently received email...")
+	if err := tools.WalkTag("Inbox"); err != nil {
+		fmt.Println("Error:", err)
+        return
+	}
 }
