@@ -280,7 +280,7 @@ func WalkTag(tagName string, space bool, n ...int) error {
 	var msgs []string
 	err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return fmt.Errorf("filepath.Walk error: %w", err)
+			return fmt.Errorf("%s is empty", tagName)
 		}
 		lstat, err := os.Lstat(path)
 		if err != nil {

@@ -11,11 +11,13 @@ func main() {
     cfg := config.ExportConfig()
     fmt.Print("20 text/gemini\r\n")
 	fmt.Println("# Inbox ✉️")
-    err := fetch.FetchGembox(cfg.GeminiFetchAddress, cfg.CertFilename)
-    if err != nil {
-        fmt.Println("Error fetching new mail:")
-        fmt.Println(err)
-    }
+	if cfg.AutoFetch {
+		err := fetch.FetchGembox(cfg.GeminiFetchAddress, cfg.CertFilename)
+		if err != nil {
+			fmt.Println("Error fetching new mail:")
+			fmt.Println(err)
+		}
+	}
 	if err := tools.WalkTag("Inbox", true); err != nil {
 		fmt.Println("Error:", err)
         return

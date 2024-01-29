@@ -4,3 +4,4 @@ go build -o localhost/mail mail.go
 go build -o localhost/unread unread.go
 go build -o localhost/archive archive.go
 go build -o localhost/trash trash.go
+go build -o localhost/delete delete.go

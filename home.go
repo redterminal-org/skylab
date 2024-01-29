@@ -2,20 +2,24 @@ package main
 
 import (
     "fmt"
+	"os"
 	"git.sr.ht/~satchlj/skylab/fetch"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
 )
 
 func main() {
+	query := os.Getenv("QUERY_STRING")
     cfg := config.ExportConfig()
     fmt.Print("20 text/gemini\r\n")
 	fmt.Println("# Misfin ✉️")
-    err := fetch.FetchGembox(cfg.GeminiFetchAddress, cfg.CertFilename)
-    if err != nil {
-        fmt.Println("Error fetching new mail:")
-        fmt.Println(err)
-    }
+	if cfg.AutoFetch || query == "fetch" {
+		err := fetch.FetchGembox(cfg.GeminiFetchAddress, cfg.CertFilename)
+		if err != nil {
+			fmt.Println("Error fetching new mail:")
+			fmt.Println(err)
+		}
+	}
 	if err := tools.WalkTag("Inbox", false, 4); err != nil {
 		fmt.Println("Error:", err)
         return
@@ -51,5 +55,8 @@ func main() {
 	fmt.Printf("=> drafts 📝 Drafts%s\n", draftsCount)
 	fmt.Printf("=> trash 🗑️ Trash%s\n", trashCount)
 	fmt.Println("=> tags 🏷️ Tags")
+	if !cfg.AutoFetch {
+		fmt.Println("=> /?fetch 🔃 Check for New Mail")
+	}
 
 }

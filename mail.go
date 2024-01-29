@@ -43,7 +43,7 @@ func main() {
 			}
 
 		} else {
-			fmt.Printf("=> restore?%s 🛟 Take out of Trash\n", query)
+			fmt.Printf("=> trash?%s 🛟 Take out of Trash\n", query)
 			fmt.Printf("=> delete?%s ❌ Delete Permanently\n", query)
 			fmt.Println("=> inbox 📪 Go to Inbox")
 
