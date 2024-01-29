@@ -58,9 +58,6 @@ See localhost/frontend_design directory for some ideas drawn out
   - func UntagAll
 
 Next steps:
-- Figure out how to serve home on root
-- Make trash a toggle just like archive
-- Implement delete (first UntagAll)
 - Make custom tags support
 - Write sending client
 - Implement Quick Reply and Draft builder
