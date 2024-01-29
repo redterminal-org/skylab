@@ -340,3 +340,30 @@ func FormatSender(sender string) string {
     // If the input string doesn't contain both email and name, return it as is
     return sender
 }
+
+// CountSymlinksInTag counts the number of symlinks (or files) in the directory for a given tag.
+// It returns the count as a string in the format "(n)" or an empty string if the directory is empty.
+func CountTags(tagName string) (string, error) {
+    dirName := filepath.Join("..", "tags", tagName)
+    var count int
+
+    err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
+        if err != nil {
+            return fmt.Errorf("filepath.Walk error: %w", err)
+        }
+        if info.Mode()&os.ModeSymlink != 0 {
+            count++
+        }
+        return nil
+    })
+
+    if err != nil {
+        return "", err
+    }
+
+    if count == 0 {
+        return "", nil
+    }
+
+    return fmt.Sprintf(" (%d)", count), nil
+}
