@@ -25,6 +25,7 @@ See localhost/frontend_design directory for some ideas drawn out
 ## Packages, functions, types
 - cgi endpoints
   - archive
+  - delete
   - home
   - inbox
   - mail
