@@ -359,7 +359,7 @@ func CountTags(tagName string) (string, error) {
 
     err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
         if err != nil {
-            return fmt.Errorf("filepath.Walk error: %w", err)
+            return nil
         }
 		symlinkName := filepath.Base(path)
         msgid := strings.TrimSuffix(symlinkName, ".msfn")

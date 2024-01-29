@@ -24,8 +24,12 @@ See localhost/frontend_design directory for some ideas drawn out
 
 ## Packages, functions, types
 - cgi endpoints
+  - archive
+  - home
   - inbox
   - mail
+  - trash
+  - unread
 - fetch
   - type Message struct
   - func FetchGembox
@@ -49,8 +53,18 @@ See localhost/frontend_design directory for some ideas drawn out
   - func isDirEmpty
   - func HasTag
   - func WalkTag
+  - func FormatSender
+  - func CountTags
+  - func UntagAll
 
 Next steps:
-- figure out how to sort mail by timestamp
-- Create mail cgi endpoint
-- create index.gmi
+- Figure out how to serve home on root
+- Make trash a toggle just like archive
+- Implement delete (first UntagAll)
+- Make custom tags support
+- Write sending client
+- Implement Quick Reply and Draft builder
+- THEN client certificate protection
+- And finally multi-user stuff
+- Then client cert management (temporary passwords, etc)
+- Then work on better message fetching and IMAP-like protocol, general compatibility with other server implementations

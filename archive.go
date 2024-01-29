@@ -16,18 +16,34 @@ func main() {
 			fmt.Println("30 /\r\n")
 			return
 		}
-		if err := tools.Tag(query, "Archive"); err != nil {
-			fmt.Print("20 text/gemini\r\n")
-			fmt.Println("Error: Could not move to Archive")
-			fmt.Println("=> inbox 📪 Inbox")
-		} else {
-			if err := tools.Untag(query, "Inbox"); err != nil {
+		if archived, _ := tools.HasTag(query, "Archive"); !archived {
+			if err := tools.Tag(query, "Archive"); err != nil {
 				fmt.Print("20 text/gemini\r\n")
-				fmt.Println("Error: Could not remove from Inbox")
+				fmt.Println("Error: Could not move to Archive")
 				fmt.Println("=> inbox 📪 Inbox")
-				return
+			} else {
+				if err := tools.Untag(query, "Inbox"); err != nil {
+					fmt.Print("20 text/gemini\r\n")
+					fmt.Println("Error: Could not remove from Inbox")
+					fmt.Println("=> inbox 📪 Inbox")
+					return
+				}
+				fmt.Print("30 /\r\n")
 			}
-			fmt.Print("30 /\r\n")
+		} else {
+			if err := tools.Tag(query, "Inbox"); err != nil {
+				fmt.Print("20 text/gemini\r\n")
+				fmt.Println("Error: Could not move to Inbox")
+				fmt.Println("=> inbox 📪 Inbox")
+			} else {
+				if err := tools.Untag(query, "Archive"); err != nil {
+					fmt.Print("20 text/gemini\r\n")
+					fmt.Println("Error: Could not remove from Archive")
+					fmt.Println("=> inbox 📪 Inbox")
+					return
+				}
+				fmt.Print("30 /inbox\r\n")
+			}
 		}
 	} else {
 		fmt.Print("20 text/gemini\r\n")
