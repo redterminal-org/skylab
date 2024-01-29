@@ -302,7 +302,7 @@ func WalkTag(tagName string, space bool, n ...int) error {
 					fmt.Println(err)
 					return nil
 				}
-				msgs = append (msgs, output)
+				msgs = append(msgs, output)
 			}
 		}
 		return nil

@@ -23,13 +23,31 @@ func main() {
 		fmt.Printf("## %s\n", message.Subject)
 		fmt.Printf("From: %s\n\n", tools.FormatSender(message.Senders[0]))
 		fmt.Println(message.MessageBody)
-		fmt.Printf("=> reply?%s ✍️ Quick Reply\n", query)
-		fmt.Printf("=> compose?%s 📝 Draft Reply\n", query)
-		fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
-		fmt.Printf("=> archive?%s 📥 Archive\n", query)
-		fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
-		fmt.Printf("=> tag?%s 🏷️ Tag\n", query)
-		fmt.Println("=> inbox 📪 Inbox")
+		if trashed, _ := tools.HasTag(query, "Trash"); !trashed {
+			if unarchived, _ := tools.HasTag(query, "Inbox"); unarchived {
+				fmt.Printf("=> reply?%s ✍️ Quick Reply\n", query)
+				fmt.Printf("=> compose?%s 📝 Draft Reply\n", query)
+				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
+				fmt.Printf("=> archive?%s 📥 Archive\n", query)
+				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
+				fmt.Printf("=> tag?%s 🏷️ Tag\n", query)
+				fmt.Println("=> inbox 📪 Go to Inbox")
+			} else if archived, _ := tools.HasTag(query, "Archive"); archived {
+				fmt.Printf("=> reply?%s ✍️ Quick Reply\n", query)
+				fmt.Printf("=> compose?%s 📝 Draft Reply\n", query)
+				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
+				fmt.Printf("=> archive?%s 📤 Move to Inbox\n", query)
+				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
+				fmt.Printf("=> tag?%s 🏷️ Tag\n", query)
+				fmt.Println("=> inbox 📪 Go to Inbox")
+			}
+
+		} else {
+			fmt.Printf("=> restore?%s 🛟 Take out of Trash\n", query)
+			fmt.Printf("=> delete?%s ❌ Delete Permanently\n", query)
+			fmt.Println("=> inbox 📪 Go to Inbox")
+
+		}
 	} else {
 		fmt.Print("30 /\r\n")
 	}
