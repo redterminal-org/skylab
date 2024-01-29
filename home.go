@@ -16,7 +16,7 @@ func main() {
         fmt.Println("Error fetching new mail:")
         fmt.Println(err)
     }
-	if err := tools.WalkTag("Inbox"); err != nil {
+	if err := tools.WalkTag("Inbox", false, 4); err != nil {
 		fmt.Println("Error:", err)
         return
 	}

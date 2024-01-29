@@ -3,5 +3,5 @@ STORE/*
 tags/*
 localhost/inbox
 localhost/mail
-localhost/index.gmi
+localhost/home
 localhost/unread

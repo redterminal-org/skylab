@@ -91,7 +91,7 @@ func IsolateAddress(input string) string {
     return input[:spaceIndex]
 }
 
-func PrintLinkAndPreview(msgid string) (string, error) {
+func PrintLinkAndPreview(msgid string, space bool) (string, error) {
     // Get file contents as message string
     filename := filepath.Join("..", "STORE", msgid+".msfn")
     message, err := ParseSkymail(filename)
@@ -107,8 +107,13 @@ func PrintLinkAndPreview(msgid string) (string, error) {
         return "", err
     }
     // Construct the formatted text
-    formattedText := fmt.Sprintf("%s\n%s\n", linkline, preview)
-    return formattedText, nil
+	var formattedText string
+	if space {
+		formattedText = fmt.Sprintf("%s\n%s\n", linkline, preview)
+	} else {
+		formattedText = fmt.Sprintf("%s\n%s", linkline, preview)
+	}
+	return formattedText, nil
 }
 
 // Create message link line
@@ -270,7 +275,7 @@ func HasTag(msgid, tagName string) (bool, error) {
     return target != "", nil
 }
 
-func WalkTag(tagName string, n ...int) error {
+func WalkTag(tagName string, space bool, n ...int) error {
 	dirName := filepath.Join("..", "tags", tagName)
 	var msgs []string
 	err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
@@ -283,7 +288,7 @@ func WalkTag(tagName string, n ...int) error {
 		} else if lstat.Mode()&os.ModeSymlink != 0 {
 			symlinkName := filepath.Base(path)
             msgid := strings.TrimSuffix(symlinkName, ".msfn")
-			output, err := PrintLinkAndPreview(msgid)
+			output, err := PrintLinkAndPreview(msgid, space)
 			if err != nil {
 				fmt.Println(err)
 				return nil
