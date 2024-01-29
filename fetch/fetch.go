@@ -87,9 +87,6 @@ func isNewMessage(mail Message) bool {
 	// Check if message file already exists
 	filename := tools.GenerateFilename(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
 	_, err := os.Stat("../STORE/" + filename)
-	if err != nil {
-		fmt.Println(err)
-	}
 	return os.IsNotExist(err)
 }
 

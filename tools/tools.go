@@ -287,16 +287,26 @@ func WalkTag(tagName string, space bool, n ...int) error {
 			return fmt.Errorf("os.Lstat error: %w", err)
 		} else if lstat.Mode()&os.ModeSymlink != 0 {
 			symlinkName := filepath.Base(path)
-            msgid := strings.TrimSuffix(symlinkName, ".msfn")
-			output, err := PrintLinkAndPreview(msgid, space)
+			msgid := strings.TrimSuffix(symlinkName, ".msfn")
+			hide, err := HasTag(msgid, "Trash")
 			if err != nil {
 				fmt.Println(err)
 				return nil
 			}
-			msgs = append (msgs, output)
+			if tagName == "Trash" {
+				hide = false
+			}
+			if !hide {
+				output, err := PrintLinkAndPreview(msgid, space)
+				if err != nil {
+					fmt.Println(err)
+					return nil
+				}
+				msgs = append (msgs, output)
+			}
 		}
-        return nil
-    })
+		return nil
+	})
 	if err != nil {
         return err
     }
@@ -341,7 +351,7 @@ func FormatSender(sender string) string {
     return sender
 }
 
-// CountSymlinksInTag counts the number of symlinks (or files) in the directory for a given tag.
+// CountTags counts the number of symlinks in the directory for a given tag.
 // It returns the count as a string in the format "(n)" or an empty string if the directory is empty.
 func CountTags(tagName string) (string, error) {
     dirName := filepath.Join("..", "tags", tagName)
@@ -351,19 +361,66 @@ func CountTags(tagName string) (string, error) {
         if err != nil {
             return fmt.Errorf("filepath.Walk error: %w", err)
         }
-        if info.Mode()&os.ModeSymlink != 0 {
+		symlinkName := filepath.Base(path)
+        msgid := strings.TrimSuffix(symlinkName, ".msfn")
+		hide, err := HasTag(msgid, "Trash")
+		if err != nil {
+            return fmt.Errorf("HasTag(Trash) error: %w", err)
+        }
+		if tagName == "Trash" {
+			hide = false
+		}
+        if info.Mode()&os.ModeSymlink != 0 && !hide {
             count++
         }
         return nil
     })
-
     if err != nil {
         return "", err
     }
-
     if count == 0 {
         return "", nil
     }
-
     return fmt.Sprintf(" (%d)", count), nil
+}
+func UntagAll(msgID string) error {
+    tagsDir := filepath.Join("..", "tags")
+    err := filepath.Walk(tagsDir, func(path string, info os.FileInfo, err error) error {
+        if err != nil {
+            return nil
+        }
+        if info != nil && info.IsDir() {
+            tag := filepath.Base(path)
+            if tag == "tags" {
+                return nil
+            }
+            tagDir := filepath.Join(tagsDir, tag)
+            if _, err := os.Stat(tagDir); os.IsNotExist(err) {
+                fmt.Printf("Skipping non-existent directory: %s\n", tagDir) // Debug print
+                return nil
+            }
+            err := filepath.Walk(tagDir, func(tagPath string, tagInfo os.FileInfo, err error) error {
+                if err != nil {
+                    return fmt.Errorf("filepath.Walk error 2: %w", err)
+                }
+                if tagInfo.Mode()&os.ModeSymlink != 0 {
+                    symlinkName := filepath.Base(tagPath)
+                    if strings.HasPrefix(symlinkName, msgID) {
+                        if err := os.Remove(tagPath); err != nil {
+                            return fmt.Errorf("failed to remove symlink %s: %w", tagPath, err)
+                        }
+                    }
+                }
+                return nil
+            })
+            if err != nil {
+                fmt.Println(err) // maybe switch back to return later
+            }
+        }
+        return nil
+    })
+    if err != nil {
+        return err
+    }
+    return nil
 }

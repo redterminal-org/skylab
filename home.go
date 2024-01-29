@@ -45,7 +45,7 @@ func main() {
 		fmt.Println("Error counting Trash:")
 		fmt.Println(err)
 	}
-	fmt.Printf("=> inbox.gmi 📪 Inbox%s\n", inboxCount)
+	fmt.Printf("=> inbox 📪 Inbox%s\n", inboxCount)
 	fmt.Printf("=> archive 🗄️ Archive%s\n", archiveCount)
 	fmt.Printf("=> sent 📤 Sent%s\n", sentCount)
 	fmt.Printf("=> drafts 📝 Drafts%s\n", draftsCount)
