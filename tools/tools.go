@@ -10,6 +10,7 @@ import (
     "path/filepath"
 	"io"
 	"sort"
+	"git.sr.ht/~satchlj/skylab/config"
 )
 
 type Skymail struct {
@@ -136,7 +137,12 @@ func GetMessageLinkLine(message Skymail, msgid string) (string, error) {
         // If the input is larger than maxLength, truncate it and add "..."
         subject = subject[:maxLength-4] + "... "
     }
-	ts := message.Timestamps[0]
+	cfg := config.ExportConfig()
+	location, err := time.LoadLocation(cfg.Timezone)
+	if err != nil {
+		return "", fmt.Errorf("Error loading timezone:", err)
+	}
+	ts := message.Timestamps[0].In(location)
 	// Create string
 	linkString := fmt.Sprintf("=> /mail?%s %s %s — %s: %s", msgid, icon, ts.Format("2006-01-02 03:04 PM"), IsolateAddress(message.Senders[0]), subject)
 	return linkString, nil

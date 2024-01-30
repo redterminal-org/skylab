@@ -55,7 +55,6 @@ func FetchGembox(address, certFilename string) error {
 			return(err)
 		}
 	}
-
 	// Process gemmails
 	for _, mail := range gbox {
 		// Check if message is new (not already saved)
@@ -124,6 +123,11 @@ func ParseGembox(gemboxData string) ([]Message, error) {
 			}
 			linesCounter++
 		}
+	}
+	if linesCounter >= 3 {
+		messages = append(messages, message)
+	} else if linesCounter > 0 {
+		return nil, errors.New("last message is not complete")
 	}
 
 	if err := scanner.Err(); err != nil {

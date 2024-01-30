@@ -4,6 +4,7 @@ import (
     "fmt"
 	"strings"
 	"os"
+	"unicode"
 	"git.sr.ht/~satchlj/skylab/tools"
 )
 
@@ -12,8 +13,14 @@ func main() {
 	path := os.Getenv("PATH_INFO")
 	msgid := strings.TrimPrefix(path, "/tag/")
 	filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
+	validTag := true
+	for _, char := range query {
+		if !unicode.IsLetter(char) && !unicode.IsDigit(char) && char != '_' && char != '-' {
+			validTag = false
+		}
+	}
 	_, err := os.Stat(filename)
-	if err != nil {
+	if err != nil || validTag != true {
 		fmt.Println("30 /\r\n")
 		return
 	}
@@ -39,19 +46,19 @@ func main() {
 			fmt.Print("20 text/gemini\r\n")
 			options, err := tools.ListTags()
 			if err != nil {
-				fmt.Println("Error: ", err)
+				fmt.Println("error: ", err)
 			}
 			for _, option := range options {
-				fmt.Printf("=> /tag/%s?%s 🏷️ Assign tag %s\n", msgid, option, option)
+				fmt.Printf("=> /tag/%s?%s 🏷️ assign tag %s\n", msgid, option, option)
 			}
-			fmt.Printf("=> /tag/%s?new 🏷️ Assign new tag\n", msgid)
+			fmt.Printf("=> /tag/%s?new 🏷️ assign new tag\n", msgid)
 			return
 		} else if query == "new" {
-			fmt.Print("10 Enter name for new tag (you may use letters, digits, underscores, and dashes):\r\n")
+			fmt.Print("10 enter name for new tag (you may use letters, digits, underscores, and dashes):\r\n")
 		} else {
 			fmt.Print("20 text/gemini\r\n")
-			fmt.Println("The tag", query, "is reserved.")
-			fmt.Println("=> tags 🏷️ Tags")
+			fmt.Println("the tag", query, "is reserved.")
+			fmt.Println("=> tags 🏷️ tags")
 		}
 	}
 }

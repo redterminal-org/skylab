@@ -6,3 +6,4 @@ go build -o localhost/archive archive.go
 go build -o localhost/trash trash.go
 go build -o localhost/delete delete.go
 go build -o localhost/tag tag.go
+go build -o localhost/tags tags.go
