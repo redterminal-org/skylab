@@ -389,11 +389,8 @@ func UntagAll(msgID string) error {
         if err != nil {
             return nil
         }
-        if info != nil && info.IsDir() {
+        if info != nil && info.IsDir() && path != tagsDir {
             tag := filepath.Base(path)
-            if tag == "tags" {
-                return nil
-            }
             tagDir := filepath.Join(tagsDir, tag)
             if _, err := os.Stat(tagDir); os.IsNotExist(err) {
                 fmt.Printf("Skipping non-existent directory: %s\n", tagDir) // Debug print
@@ -414,7 +411,7 @@ func UntagAll(msgID string) error {
                 return nil
             })
             if err != nil {
-                fmt.Println(err) // maybe switch back to return later
+                return err
             }
         }
         return nil
@@ -423,4 +420,33 @@ func UntagAll(msgID string) error {
         return err
     }
     return nil
+}
+
+func ListTags() ([]string, error) {
+	tagsDir := "../tags"
+	var tagNames []string
+	err := filepath.Walk(tagsDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() && path != tagsDir {
+			tagName := filepath.Base(path)
+			reservedTags := []string{"Inbox", "Archive", "Trash", "Sent", "Unread", "Drafts"}
+			var reserved bool
+			for _, tag := range reservedTags {
+				if tagName == tag {
+					reserved = true
+					break
+				}
+			}
+			if !reserved {
+				tagNames = append(tagNames, tagName)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return tagNames, nil
 }
