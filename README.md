@@ -59,7 +59,6 @@ See localhost/frontend_design directory for some ideas drawn out
   - func UntagAll
 
 Next steps:
-- Make custom tags support
 - Write sending client
 - Implement Quick Reply and Draft builder
 - THEN client certificate protection

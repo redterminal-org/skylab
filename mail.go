@@ -30,7 +30,7 @@ func main() {
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> archive?%s 📥 Archive\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
-				fmt.Printf("=> tag/%s 🏷️ Tag\n", query)
+				fmt.Printf("=> tag/%s 🏷️ Manage tags\n", query)
 				fmt.Println("=> inbox 📪 Go to Inbox")
 			} else if archived, _ := tools.HasTag(query, "Archive"); archived {
 				fmt.Printf("=> reply?%s ✍️ Quick Reply\n", query)
@@ -38,7 +38,7 @@ func main() {
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> archive?%s 📤 Move to Inbox\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
-				fmt.Printf("=> tag?%s 🏷️ Tag\n", query)
+				fmt.Printf("=> tag?%s 🏷️ Manage tags\n", query)
 				fmt.Println("=> inbox 📪 Go to Inbox")
 			}
 

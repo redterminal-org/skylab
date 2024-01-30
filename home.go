@@ -11,15 +11,18 @@ import (
 func main() {
 	query := os.Getenv("QUERY_STRING")
     cfg := config.ExportConfig()
-    fmt.Print("20 text/gemini\r\n")
-	fmt.Println("# Misfin ✉️")
 	if cfg.AutoFetch || query == "fetch" {
 		err := fetch.FetchGembox(cfg.GeminiFetchAddress, cfg.CertFilename)
 		if err != nil {
+    		fmt.Print("20 text/gemini\r\n")
 			fmt.Println("Error fetching new mail:")
 			fmt.Println(err)
+		} else {
+			fmt.Print("30 /\r\n")
 		}
 	}
+    fmt.Print("20 text/gemini\r\n")
+	fmt.Println("# Misfin ✉️")
 	if err := tools.WalkTag("Inbox", false, 4); err != nil {
 		fmt.Println("Error:", err)
         return

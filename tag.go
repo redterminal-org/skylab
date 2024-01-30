@@ -33,13 +33,23 @@ func main() {
 		}
 	}
 	if !reserved {
-		if err := tools.Tag(msgid, query); err != nil {
-			fmt.Print("20 text/gemini\r\n")
-			fmt.Printf("Error: Could not tag as %s.\n", query)
-			fmt.Println("=> inbox 📪 Inbox")
+		if tagged, _ := tools.HasTag(msgid, query); !tagged {
+			if err := tools.Tag(msgid, query); err != nil {
+				fmt.Print("20 text/gemini\r\n")
+				fmt.Printf("Error: Could not tag as %s.\n", query)
+				fmt.Println("=> inbox 📪 Inbox")
+			} else {
+				fmt.Printf("30 /tags?%s\r\n", query)
+				return
+			}
 		} else {
-			fmt.Printf("30 /tags?%s\r\n", query)
-			return
+			if err := tools.Untag(msgid, query); err != nil {
+				fmt.Print("20 text/gemini\r\n")
+				fmt.Printf("Error: Could not tag as %s.\n", query)
+				fmt.Println("=> inbox 📪 Inbox")
+			} else {
+				fmt.Printf("30 /mail?%s\r\n", msgid)
+			}
 		}
 	} else {
 		if query == "" {
@@ -49,9 +59,15 @@ func main() {
 				fmt.Println("error: ", err)
 			}
 			for _, option := range options {
-				fmt.Printf("=> /tag/%s?%s 🏷️ assign tag %s\n", msgid, option, option)
+				var actionName string
+				if tagged, _ := tools.HasTag(msgid, option); !tagged {
+					actionName = "Assign"
+				} else {
+					actionName = "Remove"
+				}
+				fmt.Printf("=> /tag/%s?%s 🏷️ %s tag %s\n", msgid, option, actionName, option)
 			}
-			fmt.Printf("=> /tag/%s?new 🏷️ assign new tag\n", msgid)
+			fmt.Printf("=> /tag/%s?new 🏷️ Assign new tag\n", msgid)
 			return
 		} else if query == "new" {
 			fmt.Print("10 enter name for new tag (you may use letters, digits, underscores, and dashes):\r\n")
