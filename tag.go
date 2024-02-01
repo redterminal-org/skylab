@@ -21,7 +21,7 @@ func main() {
 	}
 	_, err := os.Stat(filename)
 	if err != nil || validTag != true {
-		fmt.Println("30 /\r\n")
+		fmt.Print("30 /\r\n")
 		return
 	}
 	reservedTags := []string{"", "Inbox", "Archive", "Trash", "Sent", "Unread", "Drafts", "new"}
@@ -70,7 +70,7 @@ func main() {
 			fmt.Printf("=> /tag/%s?new 🏷️ Assign new tag\n", msgid)
 			return
 		} else if query == "new" {
-			fmt.Print("10 enter name for new tag (you may use letters, digits, underscores, and dashes):\r\n")
+			fmt.Print("10 Enter name for new tag (you may use letters, digits, underscores, and dashes):\r\n")
 		} else {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println("the tag", query, "is reserved.")

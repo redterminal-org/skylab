@@ -25,7 +25,7 @@ func main() {
 		fmt.Println(message.MessageBody)
 		if trashed, _ := tools.HasTag(query, "Trash"); !trashed {
 			if unarchived, _ := tools.HasTag(query, "Inbox"); unarchived {
-				fmt.Printf("=> reply?%s ✍️ Quick Reply\n", query)
+				fmt.Printf("=> reply/%s ✍️ Quick Reply\n", query)
 				fmt.Printf("=> compose?%s 📝 Draft Reply\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> archive?%s 📥 Archive\n", query)
@@ -33,7 +33,7 @@ func main() {
 				fmt.Printf("=> tag/%s 🏷️ Manage tags\n", query)
 				fmt.Println("=> inbox 📪 Go to Inbox")
 			} else if archived, _ := tools.HasTag(query, "Archive"); archived {
-				fmt.Printf("=> reply?%s ✍️ Quick Reply\n", query)
+				fmt.Printf("=> reply/%s ✍️ Quick Reply\n", query)
 				fmt.Printf("=> compose?%s 📝 Draft Reply\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> archive?%s 📤 Move to Inbox\n", query)
