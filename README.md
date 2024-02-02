@@ -25,10 +25,17 @@ See localhost/frontend_design directory for some ideas drawn out
 ## Packages, functions, types
 - cgi endpoints
   - archive
+  - compose
   - delete
+  - drafts
   - home
   - inbox
   - mail
+  - reply
+  - send
+  - sent
+  - tag
+  - tags
   - trash
   - unread
 - fetch
@@ -40,6 +47,11 @@ See localhost/frontend_design directory for some ideas drawn out
 - config
   - type Config struct
   - func ExportConfig
+- send
+  - func SendSkymail
+  - func GetAddressFromCert
+  - func SkymailToString
+  - func ParseComposePath
 - tools
   - type Skymail struct
   - func GenerateFilename
@@ -57,6 +69,7 @@ See localhost/frontend_design directory for some ideas drawn out
   - func FormatSender
   - func CountTags
   - func UntagAll
+  - func ListTags
 
 Next steps:
 - THEN client certificate protection
