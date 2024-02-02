@@ -72,7 +72,6 @@ See localhost/frontend_design directory for some ideas drawn out
   - func ListTags
 
 Next steps:
-- Fix tagging drafts
 - THEN client certificate protection
 - And finally multi-user stuff
 - Then client cert management (temporary passwords, etc)
