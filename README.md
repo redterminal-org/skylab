@@ -59,8 +59,9 @@ See localhost/frontend_design directory for some ideas drawn out
   - func UntagAll
 
 Next steps:
-- Implement Draft builder
 - THEN client certificate protection
 - And finally multi-user stuff
 - Then client cert management (temporary passwords, etc)
 - Then work on better message fetching and IMAP-like protocol, general compatibility with other server implementations
+- Only fetch actually new messages
+- Don't use shitty relative paths
