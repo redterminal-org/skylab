@@ -32,31 +32,34 @@ func main() {
         fmt.Println("Error counting Inbox:")
         fmt.Println(err)
     }
-	archiveCount, err := tools.CountTags("Archive")
-	if err != nil {
-        fmt.Println("Error counting Archive:")
-        fmt.Println(err)
-    }
-	sentCount, err := tools.CountTags("Sent")
-	if err != nil {
-        fmt.Println("Error counting Sent:")
-        fmt.Println(err)
-    }
+//	archiveCount, err := tools.CountTags("Archive")
+//	if err != nil {
+//        fmt.Println("Error counting Archive:")
+//        fmt.Println(err)
+//    }
+//	sentCount, err := tools.CountTags("Sent")
+//	if err != nil {
+//        fmt.Println("Error counting Sent:")
+//        fmt.Println(err)
+//    }
 	draftsCount, err := tools.CountTags("Drafts")
 	if err != nil {
         fmt.Println("Error counting Drafts:")
         fmt.Println(err)
 	}
-	trashCount, err := tools.CountTags("Trash")
-	if err != nil {
-		fmt.Println("Error counting Trash:")
-		fmt.Println(err)
-	}
+//	trashCount, err := tools.CountTags("Trash")
+//	if err != nil {
+//		fmt.Println("Error counting Trash:")
+//		fmt.Println(err)
+//	}
 	fmt.Printf("=> inbox 📪 Inbox%s\n", inboxCount)
-	fmt.Printf("=> archive 🗄️ Archive%s\n", archiveCount)
-	fmt.Printf("=> sent 📤 Sent%s\n", sentCount)
+//	fmt.Printf("=> archive 🗄️ Archive%s\n", archiveCount)
+	fmt.Println("=> archive 🗄️ Archive")
+//	fmt.Printf("=> sent 📤 Sent%s\n", sentCount)
+	fmt.Println("=> sent ☞ Sent")
 	fmt.Printf("=> drafts 📝 Drafts%s\n", draftsCount)
-	fmt.Printf("=> trash 🗑️ Trash%s\n", trashCount)
+//	fmt.Printf("=> trash 🗑️ Trash%s\n", trashCount)
+	fmt.Println("=> trash 🗑️ Trash")
 	fmt.Println("=> tags 🏷️ Tags")
 	if !cfg.AutoFetch {
 		fmt.Println("=> /?fetch 🔃 Check for New Mail")

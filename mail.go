@@ -72,7 +72,7 @@ func main() {
 				fmt.Printf("=> compose/%s 📝 Edit Draft\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
 				fmt.Printf("=> tag?%s 🏷️ Manage tags\n", query)
-				fmt.Printf("=> send?%s 💨 Send\n", query)
+				fmt.Printf("=> send?%s ☞ Send\n", query)
 				return
 			}
 		} else {
