@@ -7,12 +7,11 @@ import (
 	"time"
 	"crypto/x509"
 	"encoding/pem"
+	"strconv"
 
     "git.sr.ht/~satchlj/skylab/tools"
 	"gitlab.com/clseibold/misfin-server/misfin_client"
 	"gitlab.com/clseibold/misfin-server/gemmail"
-
-
 )
 
 func SendSkymail(skymail tools.Skymail, certFilename string) error {
@@ -103,4 +102,17 @@ func SkymailToString(mail tools.Skymail) string {
 	// Combine all parts into a single string
 	result := fmt.Sprintf("%s\n%s\n%s\n%s\n%s", senderStr, recipientStr, timestampsStr, subjectStr, mail.MessageBody)
 	return result
+}
+
+func ParseComposePath(input string) (int, string) {
+	parts := strings.Split(input, "/")
+	if len(parts) != 2 {
+		return 0, ""
+	}
+	integerPart, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return 0, ""
+	}
+	alphanumericString := parts[1]
+	return integerPart, alphanumericString
 }

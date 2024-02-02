@@ -14,6 +14,7 @@ func main() {
 		filename := fmt.Sprintf("../STORE/%s.msfn", query)
 		message, err := tools.ParseSkymail(filename)
 		if err != nil {
+			fmt.Println(err)
 			fmt.Println("30 /\r\n")
 			return
 		}
@@ -42,7 +43,7 @@ func main() {
 		if trashed, _ := tools.HasTag(query, "Trash"); !trashed {
 			if unarchived, _ := tools.HasTag(query, "Inbox"); unarchived {
 				fmt.Printf("=> reply/%s ✍️ Quick Reply\n", query)
-				fmt.Printf("=> compose?%s 📝 Draft Reply\n", query)
+				fmt.Printf("=> compose/new/%s 📝 Draft Reply\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> archive?%s 📥 Archive\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
@@ -52,7 +53,7 @@ func main() {
 			}
 			if archived, _ := tools.HasTag(query, "Archive"); archived {
 				fmt.Printf("=> reply/%s ✍️ Quick Reply\n", query)
-				fmt.Printf("=> compose?%s 📝 Draft Reply\n", query)
+				fmt.Printf("=> compose/new/%s 📝 Draft Reply\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> archive?%s 📤 Move to Inbox\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
@@ -61,10 +62,18 @@ func main() {
 				return
 			}
 			if sent {
-				fmt.Printf("=> compose?%s 📝 Follow Up\n", query)
+				fmt.Printf("=> compose/new/%s 📝 Follow Up\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
 				fmt.Printf("=> tag?%s 🏷️ Manage tags\n", query)
+				return
+			}
+			if draft {
+				fmt.Printf("=> compose/%s 📝 Edit Draft\n", query)
+				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
+				fmt.Printf("=> tag?%s 🏷️ Manage tags\n", query)
+				fmt.Printf("=> send?%s 💨 Send\n", query)
+				return
 			}
 		} else {
 			fmt.Printf("=> trash?%s 🛟 Take out of Trash\n", query)

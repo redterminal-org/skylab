@@ -9,4 +9,6 @@ go build -o localhost/tag tag.go
 go build -o localhost/tags tags.go
 go build -o localhost/reply reply.go
 go build -o localhost/sent sent.go
+go build -o localhost/send send.go
+go build -o localhost/drafts drafts.go
 go build -o localhost/compose compose.go

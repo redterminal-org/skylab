@@ -1,0 +1,244 @@
+package main
+
+import (
+    "fmt"
+	"strings"
+	"os"
+	"time"
+	"io/ioutil"
+	"net/url"
+	"git.sr.ht/~satchlj/skylab/tools"
+	"git.sr.ht/~satchlj/skylab/config"
+	"git.sr.ht/~satchlj/skylab/send"
+)
+
+func main() {
+	query := os.Getenv("QUERY_STRING")
+	decodedQuery, _ := url.QueryUnescape(query)
+	path := os.Getenv("PATH_INFO")
+	cfg := config.ExportConfig()
+	if strings.HasPrefix(path, "/compose/new") {
+		ref := strings.TrimPrefix(path, "/compose/new/")
+		address, err := send.GetAddressFromCert(cfg.CertFilename)
+		message := tools.Skymail{
+			Senders:		[]string{address},
+			Timestamps:		[]time.Time{time.Now()},
+		}
+		msgid := tools.GenerateID(message.Timestamps[0], tools.IsolateAddress(message.Senders[0]))
+		refFilename := fmt.Sprintf("../STORE/%s.msfn", ref)
+		refMessage, err := tools.ParseSkymail(refFilename)
+		if err == nil {
+			if sent, _ := tools.HasTag(ref, "Sent"); sent {
+				message.Recipients = refMessage.Recipients
+			} else {
+				message.Recipients = []string{refMessage.Senders[0]}
+			}
+			message.Subject = refMessage.Subject
+		}
+		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
+		if err := ioutil.WriteFile(filename, []byte(send.SkymailToString(message)), 0644); err != nil {
+			fmt.Print("20 text/gemini\r\n")
+			fmt.Println(err)
+			fmt.Println("=> inbox 📪 Inbox")
+			return
+		}
+		if err := tools.Tag(msgid, "Drafts"); err != nil {
+			fmt.Print("20 text/gemini\r\n")
+			fmt.Println("Error tagging as draft:", err)
+			fmt.Println("=> inbox 📪 Inbox")
+			return
+		}
+		fmt.Printf("30 /compose/%s\r\n", msgid)
+	} else if strings.HasPrefix(path, "/compose/edit-subject") {
+		msgid := strings.TrimPrefix(path, "/compose/edit-subject/")
+		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
+		draft, err := tools.HasTag(msgid, "Drafts")
+		if err != nil || draft != true {
+			fmt.Print("30 /\r\n")
+			return
+		}
+		if query != "" {
+			content, err := ioutil.ReadFile(filename)
+			if err != nil {
+				fmt.Println("Error reading file:", err)
+				return
+			}
+			lines := strings.Split(string(content), "\n")
+			if len(lines) >= 4 {
+				lines[3] = "# " + decodedQuery
+			}
+			newMessage := strings.Join(lines, "\n")
+			err = ioutil.WriteFile(filename, []byte(newMessage), 0644)
+			if err != nil {
+				fmt.Println("Error writing to file:", err)
+				return
+			}
+			fmt.Printf("30 /compose/%s\r\n", msgid)
+		} else {
+			fmt.Print("10 Enter message subject:\r\n")
+		}
+		return
+	} else if strings.HasPrefix(path, "/compose/edit-recipients") {
+		msgid := strings.TrimPrefix(path, "/compose/edit-recipients/")
+		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
+		draft, err := tools.HasTag(msgid, "Drafts")
+		if err != nil || draft != true {
+			fmt.Print("30 /\r\n")
+			return
+		}
+		if query != "" {
+			content, err := ioutil.ReadFile(filename)
+			if err != nil {
+				fmt.Println("Error reading file:", err)
+				return
+			}
+			lines := strings.Split(string(content), "\n")
+			if len(lines) >= 4 {
+				lines[1] = decodedQuery
+			}
+			newMessage := strings.Join(lines, "\n")
+			err = ioutil.WriteFile(filename, []byte(newMessage), 0644)
+			if err != nil {
+				fmt.Println("Error writing to file:", err)
+				return
+			}
+			fmt.Printf("30 /compose/%s\r\n", msgid)
+		} else {
+			fmt.Print("10 Enter message recipients as address and name separated by a single space, with multiple recipients separated by commas:\r\n")
+		}
+		return
+	} else if strings.HasPrefix(path, "/compose/add-text") {
+		// Insert text at the appropriate place
+		composePath := strings.TrimPrefix(path, "/compose/add-text/")
+		n, msgid := send.ParseComposePath(composePath)
+		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
+		draft, err := tools.HasTag(msgid, "Drafts")
+		if err != nil || draft != true {
+			fmt.Print("30 /\r\n")
+			return
+		}
+		if query != "" {
+			content, err := ioutil.ReadFile(filename)
+			if err != nil {
+				fmt.Println("Error reading file:", err)
+				return
+			}
+			lines := strings.Split(string(content), "\n")
+			inserted := false
+			if len(lines) == 5 && lines[4] == "" {
+				lines[4] = fmt.Sprintf("  \n%s\n  \n", decodedQuery)
+				inserted = true
+			}
+			counter := 0
+			for i := 4; i < len(lines); i++ {
+				line := lines[i]
+				if strings.TrimSpace(line) == "" && len(line) == 2 {
+					counter++
+					if counter == n {
+						lines[i] = fmt.Sprintf("  \n%s\n  ", decodedQuery)
+						inserted = true
+						break
+					}
+				}
+			}
+			if !inserted {
+				lines = append(lines, fmt.Sprintf("  \n%s\n  \n", decodedQuery))
+			}
+			newMessage := strings.Join(lines, "\n")
+			err = ioutil.WriteFile(filename, []byte(newMessage), 0644)
+			if err != nil {
+				fmt.Println("Error writing to file:", err)
+				return
+			}
+			fmt.Printf("30 /compose/%s\r\n", msgid)
+		} else {
+			fmt.Print("10 Enter new text:\r\n")
+		}
+		return
+	} else if strings.HasPrefix(path, "/compose/edit-text") {
+		composePath := strings.TrimPrefix(path, "/compose/edit-text/")
+		n, msgid := send.ParseComposePath(composePath)
+		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
+		draft, err := tools.HasTag(msgid, "Drafts")
+		if err != nil || draft != true {
+			fmt.Print("30 /\r\n")
+			return
+		}
+		if query != "" {
+			content, err := ioutil.ReadFile(filename)
+			if err != nil {
+				fmt.Println("Error reading file:", err)
+				return
+			}
+			blocks := strings.Split(string(content), "\n  \n")
+			if decodedQuery != "X" {
+				blocks[n] = decodedQuery
+			} else {
+				blocks = append(blocks[:n], blocks[n+1:]...)
+				if len(blocks) == 2 {
+					blocks = blocks[:1]
+				}
+			}
+			newMessage := strings.Join(blocks, "\n  \n")
+			err = ioutil.WriteFile(filename, []byte(newMessage), 0644)
+			if err != nil {
+				fmt.Println("Error writing to file:", err)
+				return
+			}
+			fmt.Printf("30 /compose/%s\r\n", msgid)
+		} else {
+			fmt.Print("10 Enter replacement text ('X' to delete block):\r\n")
+		}
+		return
+	} else {
+		msgid := strings.TrimPrefix(path, "/compose/")
+		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
+		draft, err := tools.HasTag(msgid, "Drafts")
+		if err != nil || draft != true {
+			fmt.Print("30 /\r\n")
+		}
+		message, _ := tools.ParseSkymail(filename)
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("# Edit Draft 📝")
+		if message.Subject != "" {
+			fmt.Printf("## %s\n", message.Subject)
+		} else {
+			fmt.Println("## No Subject")
+		}
+		var recipientsBuilder strings.Builder
+		for i, str := range message.Recipients {
+			formattedString := tools.FormatSender(str)
+			recipientsBuilder.WriteString(formattedString)
+			if i != len(message.Recipients)-1 {
+				recipientsBuilder.WriteString(", ")
+			}
+		}
+		recipients := recipientsBuilder.String()
+		fmt.Printf("To: %s\n\n", recipients)
+
+		fmt.Printf("=> /compose/edit-subject/%s  ✏️ Edit Subject\n", msgid)
+		fmt.Printf("=> /compose/edit-recipients/%s  ✏️ Edit Recipients\n", msgid)
+		if message.MessageBody == "" {
+			fmt.Printf("=> /compose/add-text/1/%s  ✏️ Edit Message Text\n", msgid)
+			fmt.Printf("=> /mail?%s 👁️ Preview and Send\n", msgid)
+			return
+		}
+		fmt.Printf("=> /compose/add-text/1/%s 📃 Insert text\n", msgid)
+		interblockText := "=> /compose/edit-text/%d/%s  ✏️ Edit text\n=> /compose/add-text/%d/%s 📃 Insert text\n"
+		lines := strings.Split(message.MessageBody, "\n")
+		counter := 0
+		for i, line := range lines {
+			if line == "  " {
+				if counter >= 1 {
+					lines[i] = fmt.Sprintf(interblockText, counter, msgid, counter+1, msgid)
+				} else {
+					lines[i] = ""
+				}
+				counter++
+			}
+		}
+		result := strings.Join(lines, "\n")
+		fmt.Println(result)
+		fmt.Printf("=> /mail?%s 👁️ Preview and Send\n", msgid)
+	}
+}
