@@ -57,7 +57,7 @@ func main() {
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> archive?%s 📤 Move to Inbox\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
-				fmt.Printf("=> tag?%s 🏷️ Manage tags\n", query)
+				fmt.Printf("=> tag/%s 🏷️ Manage tags\n", query)
 				fmt.Println("=> inbox 📪 Go to Inbox")
 				return
 			}
@@ -65,13 +65,13 @@ func main() {
 				fmt.Printf("=> compose/new/%s 📝 Follow Up\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
-				fmt.Printf("=> tag?%s 🏷️ Manage tags\n", query)
+				fmt.Printf("=> tag/%s 🏷️ Manage tags\n", query)
 				return
 			}
 			if draft {
 				fmt.Printf("=> compose/%s 📝 Edit Draft\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
-				fmt.Printf("=> tag?%s 🏷️ Manage tags\n", query)
+				fmt.Printf("=> tag/%s 🏷️ Manage tags\n", query)
 				fmt.Printf("=> send?%s ☞ Send\n", query)
 				return
 			}
