@@ -18,12 +18,13 @@ func main() {
 			return
 		}
 		sent, _ := tools.HasTag(query, "Sent")
+		draft, _ := tools.HasTag(query, "Drafts")
 		if err := tools.Untag(query, "Unread"); err != nil {
 			fmt.Print("Error: Could not mark as read")
 		}
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Printf("## %s\n", message.Subject)
-		if !sent{
+		if !sent && !draft {
 			fmt.Printf("From: %s\n\n", tools.FormatSender(message.Senders[0]))
 		} else {
 			var recipientsBuilder strings.Builder

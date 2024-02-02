@@ -59,8 +59,7 @@ See localhost/frontend_design directory for some ideas drawn out
   - func UntagAll
 
 Next steps:
-- Write sending client
-- Implement Quick Reply and Draft builder
+- Implement Draft builder
 - THEN client certificate protection
 - And finally multi-user stuff
 - Then client cert management (temporary passwords, etc)

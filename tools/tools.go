@@ -155,7 +155,7 @@ func GetMailPreview(message Skymail) (string, error) {
     afterNewline := false
 
     for _, char := range message.MessageBody {
-        if count >= 80 {
+        if count >= 91 {
             break
         }
         if char == '\n' || char == '\r' {
@@ -171,7 +171,17 @@ func GetMailPreview(message Skymail) (string, error) {
 		}
 	}
 
-	return preview.String(), nil
+	previewString := preview.String()
+	maxLength := 90
+    if len(previewString) > maxLength {
+        // If the input is larger than maxLength, truncate it and add "..."
+		if previewString[maxLength-3] == ' ' && previewString[maxLength-4] != ' ' {
+			previewString = previewString[:maxLength-4] + "..."
+		} else {
+			previewString = previewString[:maxLength-3] + "..."
+		}
+	}
+	return previewString, nil
 }
 
 func Tag(msgid, tagName string) error {
