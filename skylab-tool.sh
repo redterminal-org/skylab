@@ -62,7 +62,7 @@ add_user() {
     # Create config.yaml file
     cat <<EOF > "$user_dir/config.yaml"
 GeminiFetchAddress: $gemini_fetch_address
-CertFilename: cert.pem
+CertFilename: ../cert.pem
 AutoFetch: $auto_fetch
 Timezone: $timezone
 # Add other configuration fields as needed
