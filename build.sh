@@ -1,14 +1,13 @@
-go build -o localhost/home home.go
-go build -o localhost/inbox inbox.go
-go build -o localhost/mail mail.go
-go build -o localhost/unread unread.go
-go build -o localhost/archive archive.go
-go build -o localhost/trash trash.go
-go build -o localhost/delete delete.go
-go build -o localhost/tag tag.go
-go build -o localhost/tags tags.go
-go build -o localhost/reply reply.go
-go build -o localhost/sent sent.go
-go build -o localhost/send send.go
-go build -o localhost/drafts drafts.go
-go build -o localhost/compose compose.go
+#!/bin/bash
+
+# Prompt the user to enter the hostname
+read -p "What directory should the CGI executables be built to? Enter path:" hostname
+
+# Iterate over each Go file and build with the provided hostname
+for file in *.go; do
+    if [[ -f "$file" ]]; then
+        name="${file%.go}"  # Extract the filename without the .go extension
+        # Build the binary with the provided hostname
+        go build -o "$hostname/$name" "$file"
+    fi
+done
