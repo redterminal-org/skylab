@@ -25,7 +25,7 @@ skylab_init() {
 
 # Function to generate TLS certificate hash
 generate_cert_hash() {
-    cert_hash=$(openssl x509 -in "$1" -noout -sha256 -fingerprint | cut -d "=" -f 2 | tr -d ":")
+    cert_hash=$(openssl x509 -in "$1" -noout -sha256 -fingerprint | cut -d "=" -f 2 | tr -d ":" | tr '[:upper:]' '[:lower:]')
     echo "$cert_hash"
 }
 
