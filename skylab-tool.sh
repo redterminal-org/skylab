@@ -13,9 +13,11 @@ usage() {
 skylab_init() {
     # Create users directory if it doesn't exist
     read -p "Enter directory path for Skylab. (default: current directory): " directory
+    read -p "Enter hostname: " hostname
     directory=${directory:-$(pwd)}
     if [ ! -d "$directory/users" ]; then
         mkdir $directory/users
+        mkdir $directory/hostname
         touch $directory/users.yaml
     fi
     echo "Initialization setup complete."
