@@ -12,7 +12,7 @@ usage() {
 # Function to set up Skylab initialization
 skylab_init() {
     # Create users directory if it doesn't exist
-    read -p "Enter directory path for Skylab: " directory
+    read -p "Enter directory path for Skylab: " directory_input
     read -p "Enter hostname: " hostname
     directory=${directory_input/#\~/${HOME}}  # Replace ~ with $HOME
     if [ ! -d "$directory/users" ]; then
@@ -33,7 +33,7 @@ generate_cert_hash() {
 add_user() {
     # Ask for username, and directory path
     read -p "Enter username: " username
-    read -p "Enter directory path for Skylab. This directory should already exist and should contain 'users' and 'users.yaml': " directory
+    read -p "Enter directory path for Skylab. This directory should already exist and should contain 'users' and 'users.yaml': " directory_input
     directory=${directory_input/#\~/${HOME}}  # Replace ~ with $HOME
 
     # Check if users directory exists
