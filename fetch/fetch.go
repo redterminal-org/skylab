@@ -12,6 +12,7 @@ import (
 
 	"github.com/clseibold/go-gemini"
     "git.sr.ht/~satchlj/skylab/tools"
+	"git.sr.ht/~satchlj/skylab/config"
 )
 
 type Message struct {
@@ -21,16 +22,20 @@ type Message struct {
 }
 
 // FetchGembox fetches gembox from the given address using the client certificate
-func FetchGembox(address, certFilename, username string) error {
+func FetchGembox(username string) error {
 	// Read certificate file
-	certFile, err := ioutil.ReadFile(certFilename)
+    cfg, err := config.ExportConfig(username)
 	if err != nil {
-		return fmt.Errorf("Couldn't read cert: %w (%s)", err, certFilename)
+		return fmt.Errorf("Couldn't get the config info: %w", err)
+	}
+	certFile, err := ioutil.ReadFile(cfg.CertFilename)
+	if err != nil {
+		return fmt.Errorf("Couldn't read cert: %w (%s)", err, cfg.CertFilename)
 	}
 
 	// Fetch gembox from Gemini server
 	client := gemini.DefaultClient
-	resp, err := client.FetchWithCert(address, certFile, certFile)
+	resp, err := client.FetchWithCert(cfg.GeminiFetchAddress, certFile, certFile)
 	if err != nil {
 		return err
 	}
@@ -57,9 +62,10 @@ func FetchGembox(address, certFilename, username string) error {
 		}
 	}
 	// Process gemmails
+	lastFetched, err := time.Parse("2006-01-02 15:04:05", cfg.LastFetched)
 	for _, mail := range gbox {
 		// Check if message is new (not already saved)
-		if !isNewMessage(mail, username) {
+		if !isNewMessage(mail, lastFetched, username) {
 			continue
 		}
 
@@ -79,15 +85,24 @@ func FetchGembox(address, certFilename, username string) error {
 		// Print confirmation
 		// fmt.Println("Message saved:", filename)
 	}
+	if err := config.Set(username, "LastFetched", time.Now().UTC().Format("2006-01-02 15:04:05")); err != nil {
+		return fmt.Errorf("Could not write to config file: %w", err)
+	}
     return nil
 }
 
 // isNewMessage checks if the message is new (not already saved)
-func isNewMessage(mail Message, username string) bool {
+func isNewMessage(mail Message, lastFetched time.Time, username string) bool {
 	// Check if message file already exists
-	filename := tools.GenerateFilename(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
-	_, err := os.Stat(filepath.Join("..", "users", username, "STORE", filename))
-	return os.IsNotExist(err)
+	if mail.Timestamps[0].After(lastFetched) {
+		return true
+	} else if mail.Timestamps[0].Before(lastFetched) {
+		return false
+	} else {
+		filename := tools.GenerateFilename(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
+		_, err := os.Stat(filepath.Join("..", "users", username, "STORE", filename))
+		return os.IsNotExist(err)
+	}
 }
 
 func ParseGembox(gemboxData string) ([]Message, error) {

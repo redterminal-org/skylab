@@ -30,7 +30,7 @@ func main() {
     fmt.Print("20 text/gemini\r\n")
 	fmt.Println("# Inbox ✉️")
 	if cfg.AutoFetch {
-		err := fetch.FetchGembox(cfg.GeminiFetchAddress, cfg.CertFilename, username)
+		err := fetch.FetchGembox(username)
 		if err != nil {
 			fmt.Println("Error fetching new mail:")
 			fmt.Println(err)

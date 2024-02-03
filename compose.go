@@ -40,7 +40,7 @@ func main() {
 		address, err := send.GetAddressFromCert(cfg.CertFilename)
 		message := tools.Skymail{
 			Senders:		[]string{address},
-			Timestamps:		[]time.Time{time.Now()},
+			Timestamps:		[]time.Time{time.Now().UTC()},
 		}
 		msgid := tools.GenerateID(message.Timestamps[0], tools.IsolateAddress(message.Senders[0]))
 		refFilename := filepath.Join("..", "users", username, "STORE", ref+".msfn")

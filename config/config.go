@@ -12,6 +12,7 @@ type Config struct {
 	CertFilename    	string	`yaml:"CertFilename"`
 	AutoFetch			bool	`yaml:"AutoFetch"`
 	Timezone			string	`yaml:"Timezone"`
+	LastFetched			string	`yaml:"LastFetched"`
 	// Add other configuration fields as needed
 }
 
@@ -29,4 +30,25 @@ func ExportConfig(username string) (*Config, error) {
         return nil, fmt.Errorf("failed to unmarshal config data: %w", err)
     }
     return &config, nil
+}
+
+func Set(username string, fieldName string, value interface{}) error {
+	yamlFile := filepath.Join("../users", username, "config.yaml")
+	yamlContent, err := ioutil.ReadFile(yamlFile)
+	if err != nil {
+		return fmt.Errorf("failed to read config file: %w", err)
+	}
+	var configMap map[string]interface{}
+	if err := yaml.Unmarshal(yamlContent, &configMap); err != nil {
+		return fmt.Errorf("failed to unmarshal config data: %w", err)
+	}
+	configMap[fieldName] = value
+	updatedYAML, err := yaml.Marshal(&configMap)
+	if err != nil {
+		return fmt.Errorf("failed to marshal config data: %w", err)
+	}
+	if err := ioutil.WriteFile(yamlFile, updatedYAML, 0644); err != nil {
+		return fmt.Errorf("failed to write config file: %w", err)
+	}
+	return nil
 }

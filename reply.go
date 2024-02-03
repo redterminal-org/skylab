@@ -59,7 +59,7 @@ func main() {
 		replyMessage := tools.Skymail{
 			Senders:		[]string{address},
 			Recipients:		[]string{message.Senders[0]},
-			Timestamps:		[]time.Time{time.Now()},
+			Timestamps:		[]time.Time{time.Now().UTC()},
 			Subject:		message.Subject,
 			MessageBody:	decodedQuery,
 		}
