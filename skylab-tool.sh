@@ -4,7 +4,7 @@
 usage() {
     echo "Usage: $0 [--init]"
     echo "Options:"
-    echo "  --init    Perform initialization setup (create directories, etc.)"
+    echo "  --init    Perform initialization (create directories, etc.)"
     echo "  --adduser Add a new user"
     exit 1
 }
@@ -20,7 +20,7 @@ skylab_init() {
         mkdir -p "$directory/$hostname"
         touch "$directory/users.yaml"
     fi
-    echo "Initialization setup complete."
+    echo "Initialization complete."
 }
 
 # Function to generate TLS certificate hash
