@@ -17,9 +17,9 @@ skylab_init() {
     directory=${directory_input/#\~/${HOME}}  # Replace ~ with $HOME
     directory=${directory:-$(pwd)}            # Use pwd if directory_input is empty
     if [ ! -d "$directory/users" ]; then
-        mkdir $directory/users
-        mkdir $directory/hostname
-        touch $directory/users.yaml
+        mkdir -p "$directory/users"
+        mkdir -p "$directory/$hostname"
+        touch "$directory/users.yaml"
     fi
     echo "Initialization setup complete."
 }
