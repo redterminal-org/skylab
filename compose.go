@@ -7,16 +7,34 @@ import (
 	"time"
 	"io/ioutil"
 	"net/url"
+    "path/filepath"
 	"git.sr.ht/~satchlj/skylab/tools"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/send"
 )
 
 func main() {
+	if os.Getenv("TLS_CLIENT_HASH") == "" {
+		fmt.Print("30 /\r\n")
+		return
+	}
+	username, err := tools.Authenticate()
+	if err != nil {
+		fmt.Print("20 text/gemini\r\nError with somethin, prolly not ur fault :)")
+		return
+	}
+	if username == "" {
+		fmt.Print("30 /\r\n")
+		return
+	}
 	query := os.Getenv("QUERY_STRING")
 	decodedQuery, _ := url.QueryUnescape(query)
 	path := os.Getenv("PATH_INFO")
-	cfg := config.ExportConfig()
+	cfg, err := config.ExportConfig(username)
+	if err != nil {
+		fmt.Println("Couldn't get the config info")
+		return
+	}
 	if strings.HasPrefix(path, "/compose/new") {
 		ref := strings.TrimPrefix(path, "/compose/new/")
 		address, err := send.GetAddressFromCert(cfg.CertFilename)
@@ -25,24 +43,24 @@ func main() {
 			Timestamps:		[]time.Time{time.Now()},
 		}
 		msgid := tools.GenerateID(message.Timestamps[0], tools.IsolateAddress(message.Senders[0]))
-		refFilename := fmt.Sprintf("../STORE/%s.msfn", ref)
+		refFilename := filepath.Join("..", "users", username, "STORE", ref+".msfn")
 		refMessage, err := tools.ParseSkymail(refFilename)
 		if err == nil {
-			if sent, _ := tools.HasTag(ref, "Sent"); sent {
+			if sent, _ := tools.HasTag(ref, "Sent", username); sent {
 				message.Recipients = refMessage.Recipients
 			} else {
 				message.Recipients = []string{refMessage.Senders[0]}
 			}
 			message.Subject = refMessage.Subject
 		}
-		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
+		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 		if err := ioutil.WriteFile(filename, []byte(send.SkymailToString(message)), 0644); err != nil {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println(err)
 			fmt.Println("=> inbox 📪 Inbox")
 			return
 		}
-		if err := tools.Tag(msgid, "Drafts"); err != nil {
+		if err := tools.Tag(msgid, "Drafts", username); err != nil {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println("Error tagging as draft:", err)
 			fmt.Println("=> inbox 📪 Inbox")
@@ -51,8 +69,8 @@ func main() {
 		fmt.Printf("30 /compose/%s\r\n", msgid)
 	} else if strings.HasPrefix(path, "/compose/edit-subject") {
 		msgid := strings.TrimPrefix(path, "/compose/edit-subject/")
-		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
-		draft, err := tools.HasTag(msgid, "Drafts")
+		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
+		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
 			fmt.Print("30 /\r\n")
 			return
@@ -80,8 +98,8 @@ func main() {
 		return
 	} else if strings.HasPrefix(path, "/compose/edit-recipients") {
 		msgid := strings.TrimPrefix(path, "/compose/edit-recipients/")
-		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
-		draft, err := tools.HasTag(msgid, "Drafts")
+		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
+		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
 			fmt.Print("30 /\r\n")
 			return
@@ -111,8 +129,8 @@ func main() {
 		// Insert text at the appropriate place
 		composePath := strings.TrimPrefix(path, "/compose/add-text/")
 		n, msgid := send.ParseComposePath(composePath)
-		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
-		draft, err := tools.HasTag(msgid, "Drafts")
+		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
+		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
 			fmt.Print("30 /\r\n")
 			return
@@ -158,8 +176,8 @@ func main() {
 	} else if strings.HasPrefix(path, "/compose/edit-text") {
 		composePath := strings.TrimPrefix(path, "/compose/edit-text/")
 		n, msgid := send.ParseComposePath(composePath)
-		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
-		draft, err := tools.HasTag(msgid, "Drafts")
+		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
+		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
 			fmt.Print("30 /\r\n")
 			return
@@ -192,8 +210,8 @@ func main() {
 		return
 	} else {
 		msgid := strings.TrimPrefix(path, "/compose/")
-		filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
-		draft, err := tools.HasTag(msgid, "Drafts")
+		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
+		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
 			fmt.Print("30 /\r\n")
 		}

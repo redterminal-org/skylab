@@ -5,22 +5,35 @@ import (
 	"strings"
 	"os"
 	"unicode"
+	"path/filepath"
 	"git.sr.ht/~satchlj/skylab/tools"
 )
 
 func main() {
+	if os.Getenv("TLS_CLIENT_HASH") == "" {
+		fmt.Print("30 /\r\n")
+		return
+	}
+	username, err := tools.Authenticate()
+	if err != nil {
+		fmt.Print("20 text/gemini\r\nError with somethin, prolly not ur fault :)")
+		return
+	}
+	if username == "" {
+		fmt.Print("30 /\r\n")
+		return
+	}
 	query := os.Getenv("QUERY_STRING")
 	path := os.Getenv("PATH_INFO")
 	msgid := strings.TrimPrefix(path, "/tag/")
-	filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
+	filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 	validTag := true
 	for _, char := range query {
 		if !unicode.IsLetter(char) && !unicode.IsDigit(char) && char != '_' && char != '-' {
 			validTag = false
 		}
 	}
-	_, err := os.Stat(filename)
-	if err != nil || validTag != true {
+	if _, err := os.Stat(filename); err != nil || validTag != true {
 		fmt.Print("30 /\r\n")
 		return
 	}
@@ -33,8 +46,8 @@ func main() {
 		}
 	}
 	if !reserved {
-		if tagged, _ := tools.HasTag(msgid, query); !tagged {
-			if err := tools.Tag(msgid, query); err != nil {
+		if tagged, _ := tools.HasTag(msgid, query, username); !tagged {
+			if err := tools.Tag(msgid, query, username); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Printf("Error: Could not tag as %s.\n", query)
 				fmt.Println("=> inbox 📪 Inbox")
@@ -43,7 +56,7 @@ func main() {
 				return
 			}
 		} else {
-			if err := tools.Untag(msgid, query); err != nil {
+			if err := tools.Untag(msgid, query, username); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Printf("Error: Could not tag as %s.\n", query)
 				fmt.Println("=> inbox 📪 Inbox")
@@ -54,13 +67,13 @@ func main() {
 	} else {
 		if query == "" {
 			fmt.Print("20 text/gemini\r\n")
-			options, err := tools.ListTags()
+			options, err := tools.ListTags(username)
 			if err != nil {
 				fmt.Println("error: ", err)
 			}
 			for _, option := range options {
 				var actionName string
-				if tagged, _ := tools.HasTag(msgid, option); !tagged {
+				if tagged, _ := tools.HasTag(msgid, option, username); !tagged {
 					actionName = "Assign"
 				} else {
 					actionName = "Remove"

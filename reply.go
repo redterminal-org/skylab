@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 	"io/ioutil"
+	"path/filepath"
 	"net/url"
 	"git.sr.ht/~satchlj/skylab/tools"
 	"git.sr.ht/~satchlj/skylab/config"
@@ -13,11 +14,28 @@ import (
 )
 
 func main() {
+	if os.Getenv("TLS_CLIENT_HASH") == "" {
+		fmt.Print("30 /\r\n")
+		return
+	}
+	username, err := tools.Authenticate()
+	if err != nil {
+		fmt.Print("20 text/gemini\r\nError with somethin, prolly not ur fault :)")
+		return
+	}
+	if username == "" {
+		fmt.Print("30 /\r\n")
+		return
+	}
 	query := os.Getenv("QUERY_STRING")
 	path := os.Getenv("PATH_INFO")
 	msgid := strings.TrimPrefix(path, "/reply/")
-	filename := fmt.Sprintf("../STORE/%s.msfn", msgid)
-	cfg := config.ExportConfig()
+	filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
+	cfg, err := config.ExportConfig(username)
+	if err != nil {
+		fmt.Println("Couldn't get the config info")
+		return
+	}
 	message, err := tools.ParseSkymail(filename)
 	if err != nil {
 		fmt.Print("30 /\r\n")
@@ -52,15 +70,14 @@ func main() {
 			return
 		}
 		replyMsgid := tools.GenerateID(replyMessage.Timestamps[0], tools.IsolateAddress(replyMessage.Senders[0]))
-		inboxDir := "../STORE/"
-		filename := replyMsgid + ".msfn"
-		if err := ioutil.WriteFile(inboxDir+filename, []byte(send.SkymailToString(replyMessage)), 0644); err != nil {
+		filename := filepath.Join("..", "users", username, "STORE", replyMsgid+".msfn")
+		if err := ioutil.WriteFile(filename, []byte(send.SkymailToString(replyMessage)), 0644); err != nil {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println(err)
 			fmt.Println("=> inbox 📪 Inbox")
 			return
 		}
-		if err := tools.Tag(replyMsgid, "Sent"); err != nil {
+		if err := tools.Tag(replyMsgid, "Sent", username); err != nil {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println("Error tagging as sent:", err)
 			fmt.Println("=> inbox 📪 Inbox")

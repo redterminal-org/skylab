@@ -4,23 +4,37 @@ import (
     "fmt"
 	"os"
 	"strings"
+	"path/filepath"
 //	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
 )
 
 func main() {
+	if os.Getenv("TLS_CLIENT_HASH") == "" {
+		fmt.Print("30 /\r\n")
+		return
+	}
+	username, err := tools.Authenticate()
+	if err != nil {
+		fmt.Print("20 text/gemini\r\nError with somethin, prolly not ur fault :)")
+		return
+	}
+	if username == "" {
+		fmt.Print("30 /\r\n")
+		return
+	}
 	query := os.Getenv("QUERY_STRING")
 	if query != "" {
-		filename := fmt.Sprintf("../STORE/%s.msfn", query)
+		filename := filepath.Join("..", "users", username, "STORE", query+".msfn")
 		message, err := tools.ParseSkymail(filename)
 		if err != nil {
 			fmt.Println(err)
 			fmt.Println("30 /\r\n")
 			return
 		}
-		sent, _ := tools.HasTag(query, "Sent")
-		draft, _ := tools.HasTag(query, "Drafts")
-		if err := tools.Untag(query, "Unread"); err != nil {
+		sent, _ := tools.HasTag(query, "Sent", username)
+		draft, _ := tools.HasTag(query, "Drafts", username)
+		if err := tools.Untag(query, "Unread", username); err != nil {
 			fmt.Print("Error: Could not mark as read")
 		}
 		fmt.Print("20 text/gemini\r\n")
@@ -40,8 +54,8 @@ func main() {
 			fmt.Printf("To: %s\n\n", recipients)
 		}
 		fmt.Println(message.MessageBody)
-		if trashed, _ := tools.HasTag(query, "Trash"); !trashed {
-			if unarchived, _ := tools.HasTag(query, "Inbox"); unarchived {
+		if trashed, _ := tools.HasTag(query, "Trash", username); !trashed {
+			if unarchived, _ := tools.HasTag(query, "Inbox", username); unarchived {
 				fmt.Printf("=> reply/%s ✍️ Quick Reply\n", query)
 				fmt.Printf("=> compose/new/%s 📝 Draft Reply\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
@@ -51,7 +65,7 @@ func main() {
 				fmt.Println("=> inbox 📪 Go to Inbox")
 				return
 			}
-			if archived, _ := tools.HasTag(query, "Archive"); archived {
+			if archived, _ := tools.HasTag(query, "Archive", username); archived {
 				fmt.Printf("=> reply/%s ✍️ Quick Reply\n", query)
 				fmt.Printf("=> compose/new/%s 📝 Draft Reply\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)

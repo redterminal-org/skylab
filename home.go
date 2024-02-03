@@ -10,24 +10,53 @@ import (
 
 func main() {
 	query := os.Getenv("QUERY_STRING")
-    cfg := config.ExportConfig()
+	if os.Getenv("TLS_CLIENT_HASH") == "" {
+		if query != "login" {
+			fmt.Print("20 text/gemini\r\n")
+			fmt.Println("# Welcome to the Skylab Misfin Client")
+			fmt.Println("=> /?login Login")
+		} else {
+			fmt.Print("60 Please use a client certificate\r\n")
+		}
+		return
+	}
+	username, err := tools.Authenticate()
+	if err != nil {
+		fmt.Print("20 text/gemini\r\nError with somethin, prolly not ur fault :)")
+		return
+	}
+	if username == "" {
+		fmt.Print("20 text/gemini\r\nDidn't find you anywhere in my list, perhaps you're not supposed to be here?\n")
+		return
+	}
+	if query == "login" {
+		fmt.Print("30 /\r\n")
+		return
+	}
+    cfg, err := config.ExportConfig(username)
+	if err != nil {
+		fmt.Println("Couldn't get the config info:", err)
+		return
+	}
 	if cfg.AutoFetch || query == "fetch" {
-		err := fetch.FetchGembox(cfg.GeminiFetchAddress, cfg.CertFilename)
+		err := fetch.FetchGembox(cfg.GeminiFetchAddress, cfg.CertFilename, username)
 		if err != nil {
     		fmt.Print("20 text/gemini\r\n")
-			fmt.Println("Error fetching new mail:")
-			fmt.Println(err)
+			fmt.Println("Error fetching new mail:", err)
+			fmt.Println("Cert filename is:", cfg.CertFilename)
+			return
 		} else {
 			fmt.Print("30 /\r\n")
+			return
 		}
 	}
     fmt.Print("20 text/gemini\r\n")
 	fmt.Println("# Misfin ✉️")
-	if err := tools.WalkTag("Inbox", false, 4); err != nil {
+	if err := tools.WalkTag("Inbox", username, false, 4); err != nil {
 		fmt.Println("Error:", err)
         return
 	}
-	inboxCount, err := tools.CountTags("Inbox")
+	inboxCount, err := tools.CountTags("Inbox", username)
 	if err != nil {
         fmt.Println("Error counting Inbox:")
         fmt.Println(err)
@@ -42,7 +71,7 @@ func main() {
 //        fmt.Println("Error counting Sent:")
 //        fmt.Println(err)
 //    }
-	draftsCount, err := tools.CountTags("Drafts")
+	draftsCount, err := tools.CountTags("Drafts", username)
 	if err != nil {
         fmt.Println("Error counting Drafts:")
         fmt.Println(err)

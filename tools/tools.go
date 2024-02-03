@@ -9,8 +9,10 @@ import (
     "bufio"
     "path/filepath"
 	"io"
+	"io/ioutil"
 	"sort"
 	"git.sr.ht/~satchlj/skylab/config"
+	"gopkg.in/yaml.v2"
 )
 
 type Skymail struct {
@@ -100,14 +102,14 @@ func IsolateAddress(input string) string {
     return input[:spaceIndex]
 }
 
-func PrintLinkAndPreview(msgid string, space bool) (string, error) {
+func PrintLinkAndPreview(msgid, username string, space bool) (string, error) {
     // Get file contents as message string
-    filename := filepath.Join("..", "STORE", msgid+".msfn")
+    filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
     message, err := ParseSkymail(filename)
     if err != nil {
         return "", err
     }
-    linkline, err := GetMessageLinkLine(message, msgid)
+    linkline, err := GetMessageLinkLine(message, msgid, username)
     if err != nil {
         return "", err
     }
@@ -126,11 +128,11 @@ func PrintLinkAndPreview(msgid string, space bool) (string, error) {
 }
 
 // Create message link line
-func GetMessageLinkLine(message Skymail, msgid string) (string, error) {
+func GetMessageLinkLine(message Skymail, msgid, username string) (string, error) {
 	icon := "◎"
 	subject := "No Subject"
 	// Check to see if unread
-	unread, err := HasTag(msgid, "Unread")
+	unread, err := HasTag(msgid, "Unread", username)
 	if err != nil {
 		return "", err
 	}
@@ -145,7 +147,10 @@ func GetMessageLinkLine(message Skymail, msgid string) (string, error) {
         // If the input is larger than maxLength, truncate it and add "..."
         subject = subject[:maxLength-4] + "... "
     }
-	cfg := config.ExportConfig()
+	cfg, err := config.ExportConfig(username)
+	if err != nil {
+		return "", fmt.Errorf("Error getting config for timezone:", err)
+	}
 	location, err := time.LoadLocation(cfg.Timezone)
 	if err != nil {
 		return "", fmt.Errorf("Error loading timezone:", err)
@@ -192,9 +197,9 @@ func GetMailPreview(message Skymail) (string, error) {
 	return previewString, nil
 }
 
-func Tag(msgid, tagName string) error {
+func Tag(msgid, tagName, username string) error {
     // Create the path to the symlink destination
-    destDir := filepath.Join("..", "tags", tagName)
+	destDir := filepath.Join("..", "users", username, "tags", tagName)
     destPath := filepath.Join(destDir, msgid+".msfn")
 
 	// Check if the symlink already exists
@@ -212,16 +217,16 @@ func Tag(msgid, tagName string) error {
     }
 
     // Create the symlink
-    if err := os.Symlink(filepath.Join("..", "STORE", msgid+".msfn"), destPath); err != nil {
+    if err := os.Symlink(filepath.Join("..", "users", username, "STORE", msgid+".msfn"), destPath); err != nil {
         return err
     }
     return nil
 }
 
 // RemoveSymlink removes the symlink from ../tags/tagName/msgid.msfn
-func Untag(msgid, tagName string) error {
+func Untag(msgid, tagName, username string) error {
     // Create the path to the symlink
-    symlinkPath := filepath.Join("..", "tags", tagName, msgid+".msfn")
+    symlinkPath := filepath.Join("..", "users", username, "tags", tagName, msgid+".msfn")
 
     // Check if the symlink exists
     _, err := os.Lstat(symlinkPath)
@@ -238,7 +243,7 @@ func Untag(msgid, tagName string) error {
     }
 
 	    // Check if the tagName directory is empty
-    dir := filepath.Join("..", "tags", tagName)
+    dir := filepath.Join("..", "users", username, "tags", tagName)
     isEmpty, err := isDirEmpty(dir)
     if err != nil {
         return err
@@ -274,9 +279,9 @@ func isDirEmpty(name string) (bool, error) {
     return false, err
 }
 
-func HasTag(msgid, tagName string) (bool, error) {
+func HasTag(msgid, tagName, username string) (bool, error) {
     // Construct the path to the symlink
-    symlinkPath := filepath.Join("..", "tags", tagName, msgid+".msfn")
+    symlinkPath := filepath.Join("..", "users", username, "tags", tagName, msgid+".msfn")
 
     // Check if the symlink exists
     _, err := os.Lstat(symlinkPath)
@@ -299,12 +304,12 @@ func HasTag(msgid, tagName string) (bool, error) {
     return target != "", nil
 }
 
-func WalkTag(tagName string, space bool, n ...int) error {
-	dirName := filepath.Join("..", "tags", tagName)
+func WalkTag(tagName, username string, space bool, n ...int) error {
+	dirName := filepath.Join("..", "users", username, "tags", tagName)
 	var msgs []string
 	err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return fmt.Errorf("%s is empty", tagName)
+			return nil
 		}
 		lstat, err := os.Lstat(path)
 		if err != nil {
@@ -312,7 +317,7 @@ func WalkTag(tagName string, space bool, n ...int) error {
 		} else if lstat.Mode()&os.ModeSymlink != 0 {
 			symlinkName := filepath.Base(path)
 			msgid := strings.TrimSuffix(symlinkName, ".msfn")
-			hide, err := HasTag(msgid, "Trash")
+			hide, err := HasTag(msgid, "Trash", username)
 			if err != nil {
 				fmt.Println(err)
 				return nil
@@ -321,7 +326,7 @@ func WalkTag(tagName string, space bool, n ...int) error {
 				hide = false
 			}
 			if !hide {
-				output, err := PrintLinkAndPreview(msgid, space)
+				output, err := PrintLinkAndPreview(msgid, username, space)
 				if err != nil {
 					fmt.Println(err)
 					return nil
@@ -352,7 +357,7 @@ func WalkTag(tagName string, space bool, n ...int) error {
     sort.Slice(msgs, sortByTime)
 	// Limit the number of printed things
 	var limit int
-	if len(n) > 0 {
+	if len(n) > 0 && n[0] < len(msgs) {
 		limit = n[0]
 	} else {
 		limit = len(msgs)
@@ -377,8 +382,8 @@ func FormatSender(sender string) string {
 
 // CountTags counts the number of symlinks in the directory for a given tag.
 // It returns the count as a string in the format "(n)" or an empty string if the directory is empty.
-func CountTags(tagName string) (string, error) {
-    dirName := filepath.Join("..", "tags", tagName)
+func CountTags(tagName, username string) (string, error) {
+    dirName := filepath.Join("..", "users", username, "tags", tagName)
     var count int
 
     err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
@@ -387,7 +392,7 @@ func CountTags(tagName string) (string, error) {
         }
 		symlinkName := filepath.Base(path)
         msgid := strings.TrimSuffix(symlinkName, ".msfn")
-		hide, err := HasTag(msgid, "Trash")
+		hide, err := HasTag(msgid, "Trash", username)
 		if err != nil {
             return fmt.Errorf("HasTag(Trash) error: %w", err)
         }
@@ -407,8 +412,8 @@ func CountTags(tagName string) (string, error) {
     }
     return fmt.Sprintf(" (%d)", count), nil
 }
-func UntagAll(msgID string) error {
-    tagsDir := filepath.Join("..", "tags")
+func UntagAll(msgID, username string) error {
+    tagsDir := filepath.Join("..", "users", username, "tags")
     err := filepath.Walk(tagsDir, func(path string, info os.FileInfo, err error) error {
         if err != nil {
             return nil
@@ -446,8 +451,8 @@ func UntagAll(msgID string) error {
     return nil
 }
 
-func ListTags() ([]string, error) {
-	tagsDir := "../tags"
+func ListTags(username string) ([]string, error) {
+    tagsDir := filepath.Join("..", "users", username, "tags")
 	var tagNames []string
 	err := filepath.Walk(tagsDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -473,4 +478,48 @@ func ListTags() ([]string, error) {
 		return nil, err
 	}
 	return tagNames, nil
+}
+
+type UserHashes map[string]string
+
+func Authenticate() (string, error) {
+	filename := "../users.yaml"
+	hash := os.Getenv("TLS_CLIENT_HASH")
+	yamlFile, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Println("Could not read users file.")
+		return "", err
+	}
+
+	var users UserHashes
+	if err := yaml.Unmarshal(yamlFile, &users); err != nil {
+		fmt.Println("Error:", err)
+		return "", err
+	}
+	username, exists := users[hash]
+	if !exists {
+		return "", nil
+	}
+	return username, nil
+}
+
+func AddUserHash(username string) error {
+	filename := "../users.yaml"
+	hash := os.Getenv("TLS_CLIENT_HASH")
+	yamlFile, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+    if err != nil {
+        return err
+    }
+	defer yamlFile.Close()
+
+    // Prepare the new line to append to the file
+    newLine := fmt.Sprintf("%s: %s\n", hash, username)
+
+    // Append the new line to the end of the file
+    _, err = yamlFile.WriteString(newLine)
+    if err != nil {
+        return err
+    }
+
+    return nil
 }

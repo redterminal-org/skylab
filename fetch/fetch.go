@@ -8,6 +8,7 @@ import (
 	"time"
     "bufio"
     "errors"
+	"path/filepath"
 
 	"github.com/clseibold/go-gemini"
     "git.sr.ht/~satchlj/skylab/tools"
@@ -20,11 +21,11 @@ type Message struct {
 }
 
 // FetchGembox fetches gembox from the given address using the client certificate
-func FetchGembox(address, certFilename string) error {
+func FetchGembox(address, certFilename, username string) error {
 	// Read certificate file
 	certFile, err := ioutil.ReadFile(certFilename)
 	if err != nil {
-		return err
+		return fmt.Errorf("Couldn't read cert: %w (%s)", err, certFilename)
 	}
 
 	// Fetch gembox from Gemini server
@@ -48,17 +49,17 @@ func FetchGembox(address, certFilename string) error {
     }
 
 	// Create STORE directory if it doesn't exist
-	inboxDir := "../STORE/"
+	inboxDir := filepath.Join("..", "users", username, "STORE") + string(filepath.Separator)
 	if _, err := os.Stat(inboxDir); os.IsNotExist(err) {
 		err := os.Mkdir(inboxDir, 0755)
 		if err != nil {
-			return(err)
+			return fmt.Errorf("Couldn't make inboxDir: %w", err)
 		}
 	}
 	// Process gemmails
 	for _, mail := range gbox {
 		// Check if message is new (not already saved)
-		if !isNewMessage(mail) {
+		if !isNewMessage(mail, username) {
 			continue
 		}
 
@@ -69,10 +70,10 @@ func FetchGembox(address, certFilename string) error {
 		if err != nil {
 			fmt.Println("Error saving message:", err)
 		}
-		if err := tools.Tag(msgid, "Unread"); err != nil {
+		if err := tools.Tag(msgid, "Unread", username); err != nil {
 			fmt.Println("Error tagging new messages as unread:", err)
 		}
-		if err := tools.Tag(msgid, "Inbox"); err != nil {
+		if err := tools.Tag(msgid, "Inbox", username); err != nil {
 			fmt.Println("Error adding new message to Inbox:", err)
 		}
 		// Print confirmation
@@ -82,10 +83,10 @@ func FetchGembox(address, certFilename string) error {
 }
 
 // isNewMessage checks if the message is new (not already saved)
-func isNewMessage(mail Message) bool {
+func isNewMessage(mail Message, username string) bool {
 	// Check if message file already exists
 	filename := tools.GenerateFilename(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
-	_, err := os.Stat("../STORE/" + filename)
+	_, err := os.Stat(filepath.Join("..", "users", username, "STORE", filename))
 	return os.IsNotExist(err)
 }
 
