@@ -47,7 +47,8 @@ add_user() {
     mkdir -p "$user_dir/STORE" "$user_dir/tags" "$user_dir/tags/Archive" "$user_dir/tags/Drafts" "$user_dir/tags/Inbox" "$user_dir/tags/Sent" "$user_dir/tags/Trash"
 
     # Copy certificate file to cert.pem
-    read -p "Enter path to misfin keypair PEM file (this script will copy it): " cert_path
+    read -p "Enter path to misfin keypair PEM file (this script will copy it): " cert_path_input
+    cert_path=${cert_path_input/#\~/${HOME}}  # Replace ~ with $HOME
     cp "$cert_path" "$user_dir/cert.pem"
 
     # Generate TLS certificate hash
