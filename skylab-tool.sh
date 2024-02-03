@@ -77,13 +77,14 @@ EOF
 }
 build() {
     # Prompt the user to enter the hostname
-    read -p "What directory should the CGI executables be built to? Enter path:" hostname
+    read -p "What directory should the CGI executables be built to? Enter path:" directory_input
+    directory=${directory_input/#\~/${HOME}}  # Replace ~ with $HOME
     # Iterate over each Go file and build with the provided hostname
     for file in *.go; do
         if [[ -f "$file" ]]; then
             name="${file%.go}"  # Extract the filename without the .go extension
             # Build the binary with the provided hostname
-            go build -o "$hostname/$name" "$file"
+            go build -o "$directory/$name" "$file"
         fi
     done
 }
@@ -92,6 +93,8 @@ if [ "$1" == "--init" ]; then
     skylab_init
 elif [ "$1" == "--adduser" ]; then
     add_user
+elif [ "$1" == "--build" ]; then
+    build
 else
     usage
 fi
