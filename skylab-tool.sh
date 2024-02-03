@@ -14,7 +14,8 @@ skylab_init() {
     # Create users directory if it doesn't exist
     read -p "Enter directory path for Skylab. (default: current directory): " directory
     read -p "Enter hostname: " hostname
-    directory=${directory:-$(pwd)}
+    directory=${directory_input/#\~/${HOME}}  # Replace ~ with $HOME
+    directory=${directory:-$(pwd)}            # Use pwd if directory_input is empty
     if [ ! -d "$directory/users" ]; then
         mkdir $directory/users
         mkdir $directory/hostname
@@ -34,7 +35,8 @@ add_user() {
     # Ask for username, and directory path
     read -p "Enter username: " username
     read -p "Enter directory path for Skylab. This directory should already exist and should contain 'users' and 'users.yaml' (default: current directory): " directory
-    directory=${directory:-$(pwd)}
+    directory=${directory_input/#\~/${HOME}}  # Replace ~ with $HOME
+    directory=${directory:-$(pwd)}            # Use pwd if directory_input is empty
 
     # Check if users directory exists
     if [ ! -d "$directory/users" ]; then
