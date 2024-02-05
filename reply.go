@@ -83,7 +83,7 @@ func main() {
 			fmt.Println("=> inbox 📪 Inbox")
 			return
 		}
-		fmt.Printf("30 /mail?%s", replyMsgid)
+		fmt.Printf("30 /mail?%s\r\n", replyMsgid)
 	} else {
 		fmt.Printf("10 Reply to %s:\r\n", tools.FormatSender(message.Senders[0]))
 	}
