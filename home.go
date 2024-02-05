@@ -56,7 +56,7 @@ func main() {
 		fmt.Println("Error:", err)
         return
 	}
-	inboxCount, err := tools.CountTags("Inbox", username)
+	inboxCount, err := tools.CountTags("Unread", username)
 	if err != nil {
         fmt.Println("Error counting Inbox:")
         fmt.Println(err)
@@ -82,6 +82,7 @@ func main() {
 //		fmt.Println(err)
 //	}
 	fmt.Printf("=> inbox 📪 Inbox%s\n", inboxCount)
+	fmt.Println("=> compose/new ✍️ Compose")
 //	fmt.Printf("=> archive 🗄️ Archive%s\n", archiveCount)
 	fmt.Println("=> archive 🗄️ Archive")
 //	fmt.Printf("=> sent 📤 Sent%s\n", sentCount)
