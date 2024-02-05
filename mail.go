@@ -40,7 +40,16 @@ func main() {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Printf("## %s\n", message.Subject)
 		if !sent && !draft {
-			fmt.Printf("From: %s\n\n", tools.FormatSender(message.Senders[0]))
+			var sendersBuilder strings.Builder
+			for i, str := range Message.Senders {
+				formattedString := tools.FormatSender(str)
+				sendersBuilder.WriteString(formattedString)
+				if i != len(message.Senders)-1 {
+					sendersBuilder.WriteString(", ")
+				}
+			}
+			senders := sendersBuilder.String()
+			fmt.Printf("From: %s\n\n", senders)
 		} else {
 			var recipientsBuilder strings.Builder
 			for i, str := range message.Recipients {
