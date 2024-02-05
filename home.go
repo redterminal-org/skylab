@@ -38,7 +38,15 @@ func main() {
 		fmt.Println("Couldn't get the config info:", err)
 		return
 	}
-	if cfg.AutoFetch || query == "fetch" {
+	if cfg.AutoFetch {
+		err := fetch.FetchGembox(username)
+		if err != nil {
+    		fmt.Print("20 text/gemini\r\n")
+			fmt.Println("Error fetching new mail:", err)
+			fmt.Println("Cert filename is:", cfg.CertFilename)
+			return
+		}
+	} else if query == "fetch" {
 		err := fetch.FetchGembox(username)
 		if err != nil {
     		fmt.Print("20 text/gemini\r\n")
@@ -91,6 +99,7 @@ func main() {
 //	fmt.Printf("=> trash 🗑️ Trash%s\n", trashCount)
 	fmt.Println("=> trash 🗑️ Trash")
 	fmt.Println("=> tags 🏷️ Tags")
+	fmt.Println("=> settings ⚙️ Settings")
 	if !cfg.AutoFetch {
 		fmt.Println("=> /?fetch 🔃 Check for New Mail")
 	}
