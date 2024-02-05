@@ -3,8 +3,8 @@ github.com/clseibold/go-gemini v0.0.0-20240104162028-d0ebc8fd9e3f/go.mod h1:OS3T
 github.com/google/go-cmp v0.3.1 h1:Xye71clBPdm5HgqGwUkwhbynsUJZhDbS20FvLhQ2izg=
 github.com/google/go-cmp v0.3.1/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
-gitlab.com/clseibold/misfin-server v0.0.0-20240111212826-2812aea0d21e h1:fAwE3YpgQ8NtZvh8f6QRaTcgxNtkkXRj1weT735Mqiw=
-gitlab.com/clseibold/misfin-server v0.0.0-20240111212826-2812aea0d21e/go.mod h1:cqXIjjVjNRq7QqIxYsWxWzEal8HhN0/o/uFb/kwtTSA=
+gitlab.com/clseibold/misfin-server v0.0.0-20240205165617-5805100f6d59 h1:ne4Yo9HJciuWmKEiEbJK1EY47NOsY9pHMQ+jsyrKsvc=
+gitlab.com/clseibold/misfin-server v0.0.0-20240205165617-5805100f6d59/go.mod h1:cqXIjjVjNRq7QqIxYsWxWzEal8HhN0/o/uFb/kwtTSA=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4/go.mod h1:jJ57K6gSWd91VN4djpZkiMVwK6gcyfeH4XE8wZrZaV4=

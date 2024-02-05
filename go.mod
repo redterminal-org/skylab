@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/clseibold/go-gemini v0.0.0-20240104162028-d0ebc8fd9e3f
-	gitlab.com/clseibold/misfin-server v0.0.0-20240111212826-2812aea0d21e
+	gitlab.com/clseibold/misfin-server v0.0.0-20240205165617-5805100f6d59
 	gopkg.in/yaml.v2 v2.4.0
 )
 
