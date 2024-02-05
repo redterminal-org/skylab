@@ -103,5 +103,4 @@ func main() {
 	if !cfg.AutoFetch {
 		fmt.Println("=> /?fetch 🔃 Check for New Mail")
 	}
-
 }
