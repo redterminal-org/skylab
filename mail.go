@@ -41,7 +41,7 @@ func main() {
 		fmt.Printf("## %s\n", message.Subject)
 		if !sent && !draft {
 			var sendersBuilder strings.Builder
-			for i, str := range Message.Senders {
+			for i, str := range message.Senders {
 				formattedString := tools.FormatSender(str)
 				sendersBuilder.WriteString(formattedString)
 				if i != len(message.Senders)-1 {
