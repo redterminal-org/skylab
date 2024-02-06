@@ -26,8 +26,21 @@ func main() {
 		return
 	}
 	if username == "" {
-		fmt.Print("20 text/gemini\r\nDidn't find you anywhere in my list, perhaps you're not supposed to be here?\n")
-		return
+		if query == "" {
+			fmt.Print("20 text/gemini\r\nDidn't find you anywhere in my list. If you have an account already, then you can log in with a single-use password:\n")
+			fmt.Println("=> /?login Login")
+			return
+		} else if query == "login" {
+			fmt.Print("11 Enter your single-use password:\r\n")
+			return
+		} else {
+			if err := tools.CheckTempPassword(query); err != nil {
+				fmt.Print("20 text/gemini\r\n")
+				fmt.Println("Something went wrong trying to add your cert:", err)
+				return
+			}
+			fmt.Print("30 /\r\n")
+		}
 	}
 	if query == "login" {
 		fmt.Print("30 /\r\n")

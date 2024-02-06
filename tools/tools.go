@@ -2,6 +2,7 @@ package tools
 
 import (
 	"crypto/md5"
+	"math/rand"
 	"fmt"
 	"os"
 	"strings"
@@ -522,4 +523,92 @@ func AddUserHash(username string) error {
     }
 
     return nil
+}
+
+func CheckTempPassword(password string) error {
+	filename := "../passwords.yaml"
+	passHash := fmt.Sprintf("%x", md5.Sum([]byte(password)))
+	yamlFile, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Println("Could not read users file.")
+		return err
+	}
+	var temppasses UserHashes
+	if err := yaml.Unmarshal(yamlFile, &temppasses); err != nil {
+		fmt.Println("Error:", err)
+		return err
+	}
+	username, exists := temppasses[passHash]
+	if !exists {
+		return fmt.Errorf("invalid temporary password")
+	}
+	if err := AddUserHash(username); err != nil {
+		return err
+	}
+	delete(temppasses, passHash)
+	updatedYAML, err := yaml.Marshal(&temppasses)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return err
+	}
+	if err := ioutil.WriteFile(filename, updatedYAML, 0644); err != nil {
+		fmt.Println("Error writing to file:", err)
+		return err
+	}
+	return nil
+}
+
+// GenerateOneTimePassword generates a one-time use password, writes its hash to a YAML file along with the username,
+// and returns the generated password.
+func GenerateOneTimePassword(username string) (string, error) {
+	// Generate a random password
+	password := generateRandomPassword()
+
+	// Hash the password
+	passHash := fmt.Sprintf("%x", md5.Sum([]byte(password)))
+
+	// Read existing passwords from YAML file
+	filename := "../passwords.yaml"
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+        // If the file doesn't exist, create it with empty content
+        if err := ioutil.WriteFile(filename, []byte{}, 0644); err != nil {
+            return "", fmt.Errorf("error creating passwords file: %w", err)
+        }
+    }
+	yamlFile, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", fmt.Errorf("failed to read passwords file: %w", err)
+	}
+	// Unmarshal existing passwords
+	userHashes := make(map[string]string)
+	if err := yaml.Unmarshal(yamlFile, &userHashes); err != nil {
+		return "", fmt.Errorf("failed to unmarshal passwords data: %w", err)
+	}
+
+	// Add new password hash to userHashes
+	userHashes[passHash] = username
+
+	// Marshal userHashes to YAML
+	updatedYAML, err := yaml.Marshal(&userHashes)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal passwords data: %w", err)
+	}
+
+	// Write updated YAML data back to the file
+	if err := ioutil.WriteFile(filename, updatedYAML, 0644); err != nil {
+		return "", fmt.Errorf("failed to write passwords file: %w", err)
+	}
+
+	return password, nil
+}
+
+// generateRandomPassword generates a random password.
+func generateRandomPassword() string {
+	rand.Seed(time.Now().UnixNano())
+	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, 10)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }

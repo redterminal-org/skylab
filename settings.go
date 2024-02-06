@@ -86,12 +86,23 @@ func main() {
 			fmt.Print("10 Please enter your tz database time zone (America/New_York or similar):\r\n")
 			return
 		}
+	} else if strings.HasPrefix(path, "/settings/password") {
+		password, err := tools.GenerateOneTimePassword(username)
+		if err != nil {
+			fmt.Println("Couldn't generate a one time password:", err)
+			return
+		}
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("Your one-time password is:", password)
+		fmt.Println("This is the last time it will be shown. You can have multiple one-time passwords at a time, but that's probably a bad idea. Each password can be used exactly once.")
+		return
 	} else {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("# Edit Settings ⚙️")
 		fmt.Println("=> /settings/fetch-address Edit gembox fetch address")
 		fmt.Println("=> /settings/autofetch Set autofetch true/false")
-		fmt.Println("=> /settings/timezone Set your tz database time zone")
+		fmt.Println("=> /settings/timezone Set your tz database time zone\n")
+		fmt.Println("=> /settings/password Get a temporary password\n(so that you can add a new gemini client certificate to your account)")
 		fmt.Println("=> /settings/cert-filename Edit your cert filename (careful with this one! Maybe have your admin do it for you?")
 		fmt.Println("=> gemini://bbs.geminispace.org/s/Skylab Submit bug reports and feature requests here")
 	}
