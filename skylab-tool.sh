@@ -20,6 +20,10 @@ skylab_init() {
         mkdir -p "$directory/users"
         mkdir -p "$directory/$hostname"
         touch "$directory/users.yaml"
+        touch "$directory/site_config.yaml"
+        cat <<EOF > "$directory/site_config.yaml"
+ExposeSettings: true
+EOF
     fi
     echo "Initialization complete."
 }
