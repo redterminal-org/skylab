@@ -186,6 +186,9 @@ func GetMailPreview(message Skymail) (string, error) {
 	}
 
 	previewString := preview.String()
+	if len(previewString) >= 3 && previewString[:3] == "=> " {
+		previewString = previewString[3:]
+	}
 	maxLength := 90
     if len(previewString) > maxLength {
         // If the input is larger than maxLength, truncate it and add "..."
