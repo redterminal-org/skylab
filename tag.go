@@ -28,6 +28,7 @@ func main() {
 	if strings.Contains(query, "..") {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("That query is not allowed")
+		return
 	}
 	path := os.Getenv("PATH_INFO")
 	if strings.Contains(path, "..") {

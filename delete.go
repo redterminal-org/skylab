@@ -27,6 +27,7 @@ func main() {
 	if strings.Contains(query, "..") {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("That query is not allowed")
+		return
 	}
 	if query != "" {
 		filename := filepath.Join("..", "users", username, "STORE", query+".msfn")

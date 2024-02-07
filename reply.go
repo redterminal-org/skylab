@@ -32,6 +32,7 @@ func main() {
 	if strings.Contains(path, "..") {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("That path is not allowed")
+		return
 	}
 	msgid := strings.TrimPrefix(path, "/reply/")
 	filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")

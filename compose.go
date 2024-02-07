@@ -33,6 +33,7 @@ func main() {
 	if strings.Contains(path, "..") {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("That path is not allowed")
+		return
 	}
 	cfg, err := config.ExportConfig(username)
 	if err != nil {
