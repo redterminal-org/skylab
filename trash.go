@@ -2,6 +2,7 @@ package main
 
 import (
     "fmt"
+	"strings"
 	"os"
 	"path/filepath"
 //	"git.sr.ht/~satchlj/skylab/config"
@@ -23,6 +24,10 @@ func main() {
 		return
 	}
 	query := os.Getenv("QUERY_STRING")
+	if strings.Contains(query, "..") {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("That query is not allowed")
+	}
 	if query != "" {
 		filename := filepath.Join("..", "users", username, "STORE", query+".msfn")
 		_, err := os.Stat(filename)

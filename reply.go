@@ -29,6 +29,10 @@ func main() {
 	}
 	query := os.Getenv("QUERY_STRING")
 	path := os.Getenv("PATH_INFO")
+	if strings.Contains(path, "..") {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("That path is not allowed")
+	}
 	msgid := strings.TrimPrefix(path, "/reply/")
 	filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 	cfg, err := config.ExportConfig(username)

@@ -25,6 +25,10 @@ func main() {
 	}
 	query := os.Getenv("QUERY_STRING")
 	if query != "" {
+		if strings.Contains(query, "..") {
+			fmt.Print("20 text/gemini\r\n")
+			fmt.Println("That query is not allowed")
+		}
 		filename := filepath.Join("..", "users", username, "STORE", query+".msfn")
 		message, err := tools.ParseSkymail(filename)
 		if err != nil {

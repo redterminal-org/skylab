@@ -30,6 +30,10 @@ func main() {
 	query := os.Getenv("QUERY_STRING")
 	decodedQuery, _ := url.QueryUnescape(query)
 	path := os.Getenv("PATH_INFO")
+	if strings.Contains(path, "..") {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("That path is not allowed")
+	}
 	cfg, err := config.ExportConfig(username)
 	if err != nil {
 		fmt.Println("Couldn't get the config info")

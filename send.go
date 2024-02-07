@@ -27,6 +27,10 @@ func main() {
 		return
 	}
 	msgid := os.Getenv("QUERY_STRING")
+	if strings.Contains(msgid, "..") {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("That query is not allowed")
+	}
 	filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 	cfg, err := config.ExportConfig(username)
 	if err != nil {

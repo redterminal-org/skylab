@@ -16,7 +16,8 @@ func main() {
 	}
 	username, err := tools.Authenticate()
 	if err != nil {
-		fmt.Print("20 text/gemini\r\nError with somethin, prolly not ur fault :)")
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("Error with somethin, prolly not ur fault :)")
 		return
 	}
 	if username == "" {
@@ -24,7 +25,15 @@ func main() {
 		return
 	}
 	query := os.Getenv("QUERY_STRING")
+	if strings.Contains(query, "..") {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("That query is not allowed")
+	}
 	path := os.Getenv("PATH_INFO")
+	if strings.Contains(path, "..") {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("That query is not allowed")
+	}
 	msgid := strings.TrimPrefix(path, "/tag/")
 	filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 	validTag := true
