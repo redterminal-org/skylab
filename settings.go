@@ -89,8 +89,8 @@ func main() {
 			return
 		}
 	} else if strings.HasPrefix(path, "/settings/timezone") {
-		if query != "true" {
-			if err := config.Set(username, "Timezone", true); err != nil {
+		if query != "" {
+			if err := config.Set(username, "Timezone", decodedQuery); err != nil {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
@@ -117,7 +117,7 @@ func main() {
 		fmt.Println("=> /settings/timezone Set your tz database time zone\n")
 		fmt.Println("=> /settings/password Get a temporary password\n(so that you can add a new gemini client certificate to your account)")
 		if sitecfg.ExposeSettings {
-			fmt.Println("=> /settings/cert-filename Edit your cert filename (careful with this one! Maybe have your admin do it for you?")
+			fmt.Println("=> /settings/cert-filename Edit your cert filename (careful with this one! Maybe have your admin do it for you?)")
 			fmt.Println("=> /settings/fetch-address Edit gembox fetch address")
 		}
 		fmt.Println("=> gemini://bbs.geminispace.org/s/Skylab Submit bug reports and feature requests here")
