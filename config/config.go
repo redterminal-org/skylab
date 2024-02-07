@@ -16,6 +16,10 @@ type Config struct {
 	// Add other configuration fields as needed
 }
 
+type SiteConfig struct {
+	ExposeSettings	bool `yaml:"ExposeSettings"`
+}
+
 func ExportConfig(username string) (*Config, error) {
 	// Construct the path to the YAML file based on the username
     yamlFile := filepath.Join("../users", username, "config.yaml")
@@ -51,4 +55,20 @@ func Set(username string, fieldName string, value interface{}) error {
 		return fmt.Errorf("failed to write config file: %w", err)
 	}
 	return nil
+}
+
+func ExportSiteConfig() (*SiteConfig, error) {
+	// Construct the path to the YAML file based on the username
+    yamlFile := filepath.Join("../site_config.yaml")
+    // Read the contents of the YAML file
+    yamlContent, err := ioutil.ReadFile(yamlFile)
+    if err != nil {
+        return nil, fmt.Errorf("failed to read config file: %w", err)
+    }
+    // Unmarshal the YAML content into the Config struct
+    var config SiteConfig
+    if err := yaml.UnmarshalStrict(yamlContent, &config); err != nil {
+        return nil, fmt.Errorf("failed to unmarshal config data: %w", err)
+    }
+    return &config, nil
 }

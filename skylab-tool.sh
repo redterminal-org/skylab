@@ -6,6 +6,7 @@ usage() {
     echo "Options:"
     echo "  --init    Perform initialization (create directories, etc.)"
     echo "  --adduser Add a new user"
+    echo "  --build Build executable files"
     exit 1
 }
 

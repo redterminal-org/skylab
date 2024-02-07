@@ -15,7 +15,8 @@ func main() {
 	}
 	username, err := tools.Authenticate()
 	if err != nil {
-		fmt.Print("20 text/gemini\r\nError with somethin, prolly not ur fault :)")
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("Error with somethin, prolly not ur fault :)")
 		return
 	}
 	if username == "" {
@@ -24,6 +25,7 @@ func main() {
 	}
     cfg, err := config.ExportConfig(username)
 	if err != nil {
+		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("Couldn't get the config info")
 		return
 	}

@@ -30,7 +30,17 @@ func main() {
 		fmt.Println("Couldn't get the config info:", err)
 		return
 	}
+	sitecfg, err := config.ExportSiteConfig()
+	if err != nil {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("Couldn't export site-wide config", err)
+		return
+	}
 	if strings.HasPrefix(path, "/settings/fetch-address") {
+		if !sitecfg.ExposeSettings {
+			fmt.Print("30 /\r\n")
+			return
+		}
 		if query != "" {
 			if err := config.Set(username, "GeminiFetchAddress", decodedQuery); err != nil {
 				fmt.Println("Couldn't set the config value:", err)
@@ -43,6 +53,10 @@ func main() {
 			return
 		}
 	} else if strings.HasPrefix(path, "/settings/cert-filename") {
+		if !sitecfg.ExposeSettings {
+			fmt.Print("30 /\r\n")
+			return
+		}
 		if query != "" {
 			if err := config.Set(username, "CertFilename", decodedQuery); err != nil {
 				fmt.Println("Couldn't set the config value:", err)
@@ -99,11 +113,13 @@ func main() {
 	} else {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("# Edit Settings ⚙️")
-		fmt.Println("=> /settings/fetch-address Edit gembox fetch address")
 		fmt.Println("=> /settings/autofetch Set autofetch true/false")
 		fmt.Println("=> /settings/timezone Set your tz database time zone\n")
 		fmt.Println("=> /settings/password Get a temporary password\n(so that you can add a new gemini client certificate to your account)")
-		fmt.Println("=> /settings/cert-filename Edit your cert filename (careful with this one! Maybe have your admin do it for you?")
+		if sitecfg.ExposeSettings {
+			fmt.Println("=> /settings/cert-filename Edit your cert filename (careful with this one! Maybe have your admin do it for you?")
+			fmt.Println("=> /settings/fetch-address Edit gembox fetch address")
+		}
 		fmt.Println("=> gemini://bbs.geminispace.org/s/Skylab Submit bug reports and feature requests here")
 	}
 }
