@@ -6,6 +6,7 @@ import (
 	"os"
 	"io/ioutil"
     "path/filepath"
+	"time"
 	"git.sr.ht/~satchlj/skylab/tools"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/send"
@@ -38,6 +39,7 @@ func main() {
 		return
 	}
 	message.MessageBody = strings.ReplaceAll(message.MessageBody, "\n  \n", "\n\n")
+	message.Timestamps[0] = time.Now().UTC()
 	if err := send.SendSkymail(message, cfg.CertFilename); err != nil {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println(err)
