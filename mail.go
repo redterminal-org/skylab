@@ -28,7 +28,6 @@ func main() {
 		filename := filepath.Join("..", "users", username, "STORE", query+".msfn")
 		message, err := tools.ParseSkymail(filename)
 		if err != nil {
-			fmt.Println(err)
 			fmt.Println("30 /\r\n")
 			return
 		}
