@@ -67,6 +67,7 @@ func main() {
 			return
 		}
 		fmt.Printf("30 /compose/%s\r\n", msgid)
+		return
 	} else if strings.HasPrefix(path, "/compose/edit-subject") {
 		msgid := strings.TrimPrefix(path, "/compose/edit-subject/")
 		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
@@ -214,6 +215,7 @@ func main() {
 		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
 			fmt.Print("30 /\r\n")
+			return
 		}
 		message, _ := tools.ParseSkymail(filename)
 		fmt.Print("20 text/gemini\r\n")
