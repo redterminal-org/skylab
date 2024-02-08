@@ -1,5 +1,6 @@
 # Skylab Misfin Client
 
+To read about Skylab, see the page on my Gemini capsule:
 => gemini://satch.xyz/skylab/ Skylab on Gemini
 
 => gemini://bbs.geminispace.org/s/Skylab Issue Tracker
@@ -57,8 +58,7 @@
   - func AddUserHash
 
 Next steps:
-- Client cert management (temporary passwords, etc)
-- New user creation
-- Then work on better message fetching and IMAP-like protocol, general compatibility with other server implementations
+- Better new user creation
+- Better message fetching options IMAP-like protocol, general compatibility with other server implementations
 - more config options (custom paths)
-- Write instructions for deployment, example .gmcapsulerc
+- A single compiled executable?

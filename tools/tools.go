@@ -51,19 +51,19 @@ func ParseSkymail(skymailFilename string) (Skymail, error) {
         line := scanner.Text()
         switch linesCounter {
         case 0:
-			senders := strings.Split(line, ",")
+			senders := strings.Split(strings.TrimPrefix(line, "< "), ",")
             for _, sender := range senders {
                 sender = strings.TrimSpace(sender)
                 message.Senders = append(message.Senders, sender)
             }
         case 1:
-			recipients := strings.Split(line, ",")
+			recipients := strings.Split(strings.TrimPrefix(line, ": "), ",")
             for _, recipient := range recipients {
                 recipient = strings.TrimSpace(recipient)
                 message.Recipients = append(message.Recipients, recipient)
             }
         case 2:
-            timestampStrings := strings.Split(line, ",")
+            timestampStrings := strings.Split(strings.TrimPrefix(line, "@ "), ",")
             for _, ts := range timestampStrings {
                 ts = strings.TrimSpace(ts)
                 timestamp, err := time.Parse(time.RFC3339, ts)

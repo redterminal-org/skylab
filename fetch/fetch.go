@@ -125,9 +125,9 @@ func ParseGembox(gemboxData string) ([]Message, error) {
 			message.FullText += line + "\n" // Append line to FullText
 			switch linesCounter {
 			case 0:
-				message.Senders = strings.Split(line, ",")
+				message.Senders = strings.Split(strings.TrimPrefix(line, "< "), ",")
 			case 2:
-				timestampStrings := strings.Split(line, ",")
+				timestampStrings := strings.Split(strings.TrimPrefix(line, "@ "), ",")
                 for _, ts := range timestampStrings {
                     ts = strings.TrimSpace(ts)
                     timestamp, err := time.Parse(time.RFC3339, ts)
