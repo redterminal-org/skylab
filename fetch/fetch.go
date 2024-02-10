@@ -1,5 +1,4 @@
 package fetch
-
 import (
 	"fmt"
 	"io/ioutil"
@@ -68,7 +67,6 @@ func FetchGembox(username string) error {
 		if !isNewMessage(mail, lastFetched, username) {
 			continue
 		}
-
 		msgid := tools.GenerateID(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
 		filename := msgid + ".msfn"
 		// Save message to file
