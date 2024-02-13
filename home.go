@@ -70,7 +70,11 @@ func main() {
 		fmt.Print("30 /\r\n")
 	}
 	fmt.Print("20 text/gemini\r\n")
-	fmt.Println("# Misfin ✉️")
+	if cfg.HeaderText != "" {
+		fmt.Println("# ", cfg.HeaderText)
+	} else {
+		fmt.Println("# Misfin ✉️")
+	}
 	display := cfg.DisplayNumber
 	if err := tools.WalkTag("Inbox", username, false, display); err != nil {
 		fmt.Println("Error:", err)

@@ -15,6 +15,7 @@ type Config struct {
 	LastFetched			string	`yaml:"LastFetched"`
 	GMAP				bool	`yaml:"GMAP"`
 	DisplayNumber		int		`yaml:"DisplayNumber"`
+	HeaderText			string	`yaml:"HeaderText"`
 	// Add other configuration fields as needed
 }
 

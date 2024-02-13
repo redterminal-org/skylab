@@ -52,6 +52,18 @@ func main() {
 			fmt.Print("10 Enter your gembox fetch address (gemini://example.org:1958/fetch or similar):\r\n")
 			return
 		}
+	} else if strings.HasPrefix(path, "/settings/header-text") {
+		if query != "" {
+			if err := config.Set(username, "HeaderText", decodedQuery); err != nil {
+				fmt.Println("Couldn't set the config value:", err)
+				return
+			}
+			fmt.Print("30 /settings\r\n")
+			return
+		} else {
+			fmt.Print("10 Write your own homepage header. Default is 'Misfin ✉️'\r\n")
+			return
+		}
 	} else if strings.HasPrefix(path, "/settings/cert-filename") {
 		if !sitecfg.ExposeSettings {
 			fmt.Print("30 /\r\n")
@@ -146,15 +158,21 @@ func main() {
 	} else {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("# Edit Settings ⚙️")
+		fmt.Println("### Client behavior")
 		fmt.Println("=> /settings/autofetch Set autofetch true/false")
 		fmt.Println("=> /settings/timezone Set your tz database time zone\n")
-		fmt.Println("=> /settings/password Get a temporary password\n(so that you can add a new gemini client certificate to your account)")
+		fmt.Println("### Display options")
 		fmt.Println("=> /settings/home-display Set max number of messages to display on homepage (0 to disable)")
+		fmt.Println("=> /settings/header-text Set your homepage header text")
 		if sitecfg.ExposeSettings {
+			fmt.Println("### Misfin account configuration")
 			fmt.Println("=> /settings/cert-filename Edit your cert filename (careful with this one! Maybe have your admin do it for you?)")
 			fmt.Println("=> /settings/fetch-address Edit gembox fetch address")
 			fmt.Println("=> /settings/gmap Use GMAP Gembox parsing")
 		}
+		fmt.Println("### Gemini client certificates for Skylab")
+		fmt.Println("=> /settings/password Get a temporary password\n(so that you can add a new gemini client certificate to your account)")
+		fmt.Println("### Bug Reports and Feature Requests")
 		fmt.Println("=> gemini://bbs.geminispace.org/s/Skylab Submit bug reports and feature requests here")
 	}
 }
