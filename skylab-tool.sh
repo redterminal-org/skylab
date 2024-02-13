@@ -61,6 +61,7 @@ add_user() {
 
     # Ask for configuration values
     read -p "Enter GeminiFetchAddress: " gemini_fetch_address
+    read -p "Are you using a GMAP-style gembox? (true/false): " GMAP
     read -p "Enter AutoFetch (true/false): " auto_fetch
     read -p "Enter Timezone: " timezone
 
@@ -70,6 +71,7 @@ GeminiFetchAddress: $gemini_fetch_address
 CertFilename: $user_dir/cert.pem
 AutoFetch: $auto_fetch
 Timezone: $timezone
+GMAP: $GMAP
 # Add other configuration fields as needed
 EOF
 

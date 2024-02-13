@@ -4,3 +4,4 @@ STORE/*
 tags/*
 localhost/*
 config
+Makefile

@@ -51,27 +51,25 @@ func main() {
 		fmt.Println("Couldn't get the config info:", err)
 		return
 	}
-	if cfg.AutoFetch {
-		err := fetch.FetchGembox(username)
-		if err != nil {
-    		fmt.Print("20 text/gemini\r\n")
+	var fetchGembox func(username string) error
+	if cfg.GMAP {
+		fetchGembox = fetch.FetchGemboxGMAP
+	} else {
+		fetchGembox = fetch.FetchGembox
+	}
+	if cfg.AutoFetch || query == "fetch" {
+		if err := fetchGembox(username); err != nil {
+			fmt.Print("20 text/gemini\r\n")
 			fmt.Println("Error fetching new mail:", err)
 			fmt.Println("Cert filename is:", cfg.CertFilename)
-			return
-		}
-	} else if query == "fetch" {
-		err := fetch.FetchGembox(username)
-		if err != nil {
-    		fmt.Print("20 text/gemini\r\n")
-			fmt.Println("Error fetching new mail:", err)
-			fmt.Println("Cert filename is:", cfg.CertFilename)
-			return
-		} else {
-			fmt.Print("30 /\r\n")
 			return
 		}
 	}
-    fmt.Print("20 text/gemini\r\n")
+
+	if query == "fetch" {
+		fmt.Print("30 /\r\n")
+	}
+	fmt.Print("20 text/gemini\r\n")
 	fmt.Println("# Misfin ✉️")
 	if err := tools.WalkTag("Inbox", username, false, 4); err != nil {
 		fmt.Println("Error:", err)

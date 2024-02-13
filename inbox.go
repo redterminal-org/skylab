@@ -31,8 +31,14 @@ func main() {
 	}
     fmt.Print("20 text/gemini\r\n")
 	fmt.Println("# Inbox ✉️")
+	var fetchGembox func(username string) error
+	if cfg.GMAP {
+		fetchGembox = fetch.FetchGemboxGMAP
+	} else {
+		fetchGembox = fetch.FetchGembox
+	}
 	if cfg.AutoFetch {
-		err := fetch.FetchGembox(username)
+		err := fetchGembox(username)
 		if err != nil {
 			fmt.Println("Error fetching new mail:")
 			fmt.Println(err)

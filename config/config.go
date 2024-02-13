@@ -13,6 +13,7 @@ type Config struct {
 	AutoFetch			bool	`yaml:"AutoFetch"`
 	Timezone			string	`yaml:"Timezone"`
 	LastFetched			string	`yaml:"LastFetched"`
+	GMAP				bool	`yaml:"GMAP"`
 	// Add other configuration fields as needed
 }
 

@@ -68,6 +68,26 @@ func main() {
 			fmt.Print("10 Ask your server admin what this should be if you're not sure. Use an absolute path to make things easier (/home/misfinuser/skylab/users/yourname/cert.pem or similar):\r\n")
 			return
 		}
+	} else if strings.HasPrefix(path, "/settings/gmap") {
+		if query == "true" {
+			if err := config.Set(username, "GMAP", true); err != nil {
+				fmt.Println("Couldn't set the config value:", err)
+				return
+			}
+			fmt.Print("30 /settings\r\n")
+			return
+		}
+		if query == "false" {
+			if err := config.Set(username, "GMAP", false); err != nil {
+				fmt.Println("Couldn't set the config value:", err)
+				return
+			}
+			fmt.Print("30 /settings\r\n")
+			return
+		} else {
+			fmt.Print("10 Please enter 'true' or 'false':\r\n")
+			return
+		}
 	} else if strings.HasPrefix(path, "/settings/autofetch") {
 		if query == "true" {
 			if err := config.Set(username, "AutoFetch", true); err != nil {
@@ -119,6 +139,7 @@ func main() {
 		if sitecfg.ExposeSettings {
 			fmt.Println("=> /settings/cert-filename Edit your cert filename (careful with this one! Maybe have your admin do it for you?)")
 			fmt.Println("=> /settings/fetch-address Edit gembox fetch address")
+			fmt.Println("=> /settings/gmap Use GMAP Gembox parsing")
 		}
 		fmt.Println("=> gemini://bbs.geminispace.org/s/Skylab Submit bug reports and feature requests here")
 	}
