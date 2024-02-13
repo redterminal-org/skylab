@@ -189,6 +189,18 @@ func GetMailPreview(message Skymail) (string, error) {
 	if len(previewString) >= 3 && previewString[:3] == "=> " {
 		previewString = previewString[3:]
 	}
+	if len(previewString) >= 2 && previewString[:2] == "# " {
+		previewString = previewString[2:]
+	}
+	if len(previewString) >= 3 && previewString[:3] == "## " {
+		previewString = previewString[3:]
+	}
+	if len(previewString) >= 4 && previewString[:4] == "### " {
+		previewString = previewString[4:]
+	}
+	if len(previewString) >= 3 && previewString[:3] == "```" {
+		previewString = "[preformatted block]"
+	}
 	maxLength := 90
     if len(previewString) > maxLength {
         // If the input is larger than maxLength, truncate it and add "..."
