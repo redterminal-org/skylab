@@ -93,6 +93,7 @@ func main() {
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
 				fmt.Printf("=> tag/%s 🏷️ Manage tags\n", query)
+				fmt.Println("=> inbox 📪 Go to Inbox")
 				return
 			}
 			if draft {
