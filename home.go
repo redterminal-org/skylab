@@ -71,7 +71,8 @@ func main() {
 	}
 	fmt.Print("20 text/gemini\r\n")
 	fmt.Println("# Misfin ✉️")
-	if err := tools.WalkTag("Inbox", username, false, 4); err != nil {
+	display := cfg.DisplayNumber
+	if err := tools.WalkTag("Inbox", username, false, display); err != nil {
 		fmt.Println("Error:", err)
         return
 	}

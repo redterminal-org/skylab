@@ -14,6 +14,7 @@ type Config struct {
 	Timezone			string	`yaml:"Timezone"`
 	LastFetched			string	`yaml:"LastFetched"`
 	GMAP				bool	`yaml:"GMAP"`
+	DisplayNumber		int		`yaml:"DisplayNumber"`
 	// Add other configuration fields as needed
 }
 

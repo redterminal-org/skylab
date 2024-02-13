@@ -41,14 +41,14 @@ func FetchGembox(username string) error {
 	client := gemini.DefaultClient
 	resp, err := client.FetchWithCert(cfg.GeminiFetchAddress, certFile, certFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("Couldn't fetch gembox file: %w", err)
 	}
 	defer resp.Body.Close()
 
 	// Read gembox data
 	gemboxData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf("Errno 123: %w")
 	}
 
 	// Parse gembox
@@ -56,6 +56,9 @@ func FetchGembox(username string) error {
     if err != nil {
         return err
     }
+	if string(gemboxData) == "" {
+		return errors.New("Empty gembox.")
+	}
 
 	// Create STORE directory if it doesn't exist
 	inboxDir := filepath.Join("..", "users", username, "STORE") + string(filepath.Separator)
@@ -224,9 +227,9 @@ func FetchGemboxGMAP(username string) error {
 			}
 		}
 		if mail.Subject != "" {
-			builder.WriteString("# " + mail.Subject)
+			builder.WriteString("# " + mail.Subject + "\n")
 		}
-		builder.WriteString(mail.MessageBody)
+		builder.WriteString(strings.TrimSpace(mail.MessageBody))
 		fullText := builder.String()
 		filename := mail.Msgid + ".msfn"
 		// Save message to file

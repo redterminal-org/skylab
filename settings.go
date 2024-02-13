@@ -1,10 +1,10 @@
 package main
-
 import (
 	"fmt"
 	"strings"
 	"os"
 	"net/url"
+	"strconv"
 	"git.sr.ht/~satchlj/skylab/tools"
 	"git.sr.ht/~satchlj/skylab/config"
 )
@@ -88,6 +88,19 @@ func main() {
 			fmt.Print("10 Please enter 'true' or 'false':\r\n")
 			return
 		}
+	} else if strings.HasPrefix(path, "/settings/home-display") {
+		displayNumber, err := strconv.Atoi(query)
+		if query != "" && err == nil {
+			if err := config.Set(username, "DisplayNumber", displayNumber); err != nil {
+				fmt.Println("Couldn't set the config value:", err)
+				return
+			}
+			fmt.Println("30 /settings\r\n")
+			return
+		} else {
+			fmt.Print("10 Please enter an integer number of recent messages to display on the home page ('4' recommended):\r\n")
+			return
+		}
 	} else if strings.HasPrefix(path, "/settings/autofetch") {
 		if query == "true" {
 			if err := config.Set(username, "AutoFetch", true); err != nil {
@@ -136,6 +149,7 @@ func main() {
 		fmt.Println("=> /settings/autofetch Set autofetch true/false")
 		fmt.Println("=> /settings/timezone Set your tz database time zone\n")
 		fmt.Println("=> /settings/password Get a temporary password\n(so that you can add a new gemini client certificate to your account)")
+		fmt.Println("=> /settings/home-display Set max number of messages to display on homepage (0 to disable)")
 		if sitecfg.ExposeSettings {
 			fmt.Println("=> /settings/cert-filename Edit your cert filename (careful with this one! Maybe have your admin do it for you?)")
 			fmt.Println("=> /settings/fetch-address Edit gembox fetch address")

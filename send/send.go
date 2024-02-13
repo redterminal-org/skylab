@@ -100,7 +100,7 @@ func SkymailToString(mail tools.Skymail) string {
 	subjectStr := "# " + mail.Subject
 
 	// Combine all parts into a single string
-	result := fmt.Sprintf("%s\n%s\n%s\n%s\n%s", senderStr, recipientStr, timestampsStr, subjectStr, mail.MessageBody)
+	result := fmt.Sprintf("%s\n%s\n%s\n%s\n%s", senderStr, recipientStr, timestampsStr, subjectStr, strings.TrimSpace(mail.MessageBody))
 	return result
 }
 
