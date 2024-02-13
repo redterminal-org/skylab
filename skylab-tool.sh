@@ -72,6 +72,7 @@ CertFilename: $user_dir/cert.pem
 AutoFetch: $auto_fetch
 Timezone: $timezone
 GMAP: $GMAP
+DisplayNumber: 4
 # Add other configuration fields as needed
 EOF
 
