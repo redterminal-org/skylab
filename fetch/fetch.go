@@ -21,6 +21,7 @@ type Message struct {
 	MessageBody	string
 	Msgid		string
 	Tags		[]string
+	Untags		[]string
 	Subject		string
 	Recipients	[]string
 }
@@ -186,7 +187,11 @@ func FetchGemboxGMAP(username string) error {
 	}
 
 	// Parse gembox
-	gbox, err := ParseGemboxGMAP(string(gemboxData))
+	lastFetched, err := time.Parse("2006-01-02 15:04:05", cfg.LastFetched)
+    if err != nil {
+        return err
+    }
+	gbox, err := ParseGemboxGMAP(string(gemboxData), lastFetched)
     if err != nil {
         return err
     }
@@ -200,19 +205,22 @@ func FetchGemboxGMAP(username string) error {
 		}
 	}
 	// Process gemmails
-	lastFetched, err := time.Parse("2006-01-02 15:04:05", cfg.LastFetched)
 	for i, mail := range gbox {
 		if len(mail.Timestamps) == 0 {
 			return fmt.Errorf("There are no timestamps for message %s, %d of %d", mail.Msgid, i, len(gbox))
 		}
 		// Check if message is new (not already saved)
 		if !isNewMessageGMAP(mail, lastFetched, username) {
-//			tools.UntagAll(mail.Msgid, username)
-//			for _, tag := range mail.Tags {
-//				if err := tools.Tag(mail.Msgid, tag, username); err != nil {
-//					fmt.Println("Error tagging new message", err)
-//				}
-//			}
+			for _, tag := range mail.Tags {
+				if err := tools.Tag(mail.Msgid, tag, username, false); err != nil {
+					fmt.Println("Error tagging new message", err)
+				}
+			}
+			for _, tag := range mail.Untags {
+				if err := tools.Untag(mail.Msgid, tag, username, false); err != nil {
+					fmt.Println("Error tagging new message", err)
+				}
+			}
 			continue
 		}
 		var builder strings.Builder
@@ -265,8 +273,7 @@ func isNewMessageGMAP(mail Message, lastFetched time.Time, username string) bool
 	}
 }
 
-func ParseGemboxGMAP(gemboxData string) ([]Message, error) {
-
+func ParseGemboxGMAP(gemboxData string, lastFetched time.Time) ([]Message, error) {
 	scanner := bufio.NewScanner(strings.NewReader(gemboxData))
 	var messages []Message
 	var message Message
@@ -324,16 +331,21 @@ func ParseGemboxGMAP(gemboxData string) ([]Message, error) {
 					tagName := parts[0]
 					rest := strings.TrimSpace(parts[1])
 					bits := strings.Split(rest, " ")
-//					timestamp, err := time.Parse(time.RFC3339, bits[0])
-//					if err != nil {
-//						return nil, err
-//					}
+					timestamp, err := time.Parse(time.RFC3339, bits[0])
+					if err != nil {
+						return nil, err
+					}
 					if bits[1] == "false" {
+						if !timestamp.Before(lastFetched) {
+							message.Untags = append(message.Untags, tagName)
+						}
 						continue
 					} else if bits[1] != "true" {
 						return nil, errors.New("gembox tag boolean not properly formatted")
 					}
-					message.Tags = append(message.Tags, tagName)
+					if !timestamp.Before(lastFetched) {
+						message.Tags = append(message.Tags, tagName)
+					}
 				}
 			} else {
 				if strings.HasPrefix(line, "\\[") {
