@@ -1,7 +1,1 @@
-cert.pem
-my-tool.sh
-STORE/*
-tags/*
-localhost/*
-config
 Makefile

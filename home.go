@@ -8,44 +8,9 @@ import (
 	"git.sr.ht/~satchlj/skylab/tools"
 )
 
-func main() {
+func home() {
 	query := os.Getenv("QUERY_STRING")
-	if os.Getenv("TLS_CLIENT_HASH") == "" {
-		if query != "login" {
-			fmt.Print("20 text/gemini\r\n")
-			fmt.Println("# Welcome to the Skylab Misfin Client")
-			fmt.Println("=> /?login Login")
-		} else {
-			fmt.Print("60 Please use a client certificate\r\n")
-		}
-		return
-	}
-	username, err := tools.Authenticate()
-	if err != nil {
-		fmt.Print("20 text/gemini\r\nError with somethin, prolly not ur fault :)")
-		return
-	}
-	if username == "" {
-		if query == "" {
-			fmt.Print("20 text/gemini\r\nDidn't find you anywhere in my list. If you have an account already, then you can log in with a single-use password:\n")
-			fmt.Println("=> /?login Login")
-			return
-		} else if query == "login" {
-			fmt.Print("11 Enter your single-use password:\r\n")
-			return
-		} else {
-			if err := tools.CheckTempPassword(query); err != nil {
-				fmt.Print("20 text/gemini\r\n")
-				fmt.Println("Something went wrong trying to add your cert:", err)
-				return
-			}
-			fmt.Print("30 /\r\n")
-		}
-	}
-	if query == "login" {
-		fmt.Print("30 /\r\n")
-		return
-	}
+	username, _ := tools.Authenticate()
     cfg, err := config.ExportConfig(username)
 	if err != nil {
 		fmt.Println("Couldn't get the config info:", err)

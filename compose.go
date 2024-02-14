@@ -13,20 +13,8 @@ import (
 	"git.sr.ht/~satchlj/skylab/send"
 )
 
-func main() {
-	if os.Getenv("TLS_CLIENT_HASH") == "" {
-		fmt.Print("30 /\r\n")
-		return
-	}
-	username, err := tools.Authenticate()
-	if err != nil {
-		fmt.Print("20 text/gemini\r\nError with somethin, prolly not ur fault :)")
-		return
-	}
-	if username == "" {
-		fmt.Print("30 /\r\n")
-		return
-	}
+func compose() {
+	username, _ := tools.Authenticate()
 	query := os.Getenv("QUERY_STRING")
 	decodedQuery, _ := url.QueryUnescape(query)
 	path := os.Getenv("PATH_INFO")

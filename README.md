@@ -17,6 +17,7 @@ To read about Skylab, see the page on my Gemini capsule:
   - reply
   - send
   - sent
+  - settings
   - tag
   - tags
   - trash
@@ -61,4 +62,3 @@ Next steps:
 - Better new user creation
 - Better message fetching options IMAP-like protocol, general compatibility with other server implementations
 - more config options (custom paths)
-- A single compiled executable?

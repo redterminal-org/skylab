@@ -9,23 +9,12 @@ import (
 	"git.sr.ht/~satchlj/skylab/config"
 )
 
-func main() {
-	if os.Getenv("TLS_CLIENT_HASH") == "" {
-		fmt.Print("30 /\r\n")
-		return
-	}
-	username, err := tools.Authenticate()
-	if err != nil {
-		fmt.Print("20 text/gemini\r\nError with somethin, prolly not ur fault :)")
-		return
-	}
-	if username == "" {
-		fmt.Print("30 /\r\n")
-		return
-	}
+func settings() {
+	username, _ := tools.Authenticate()
 	query := os.Getenv("QUERY_STRING")
 	decodedQuery, _ := url.QueryUnescape(query)
 	path := os.Getenv("PATH_INFO")
+    cfg, err := config.ExportConfig(username)
 	if err != nil {
 		fmt.Println("Couldn't get the config info:", err)
 		return
@@ -160,7 +149,7 @@ func main() {
 		fmt.Println("# Edit Settings ⚙️")
 		fmt.Println("### Client behavior")
 		fmt.Println("=> /settings/autofetch Set autofetch true/false")
-		fmt.Println("=> /settings/timezone Set your tz database time zone\n")
+		fmt.Printf("=> /settings/timezone Set your tz database time zone (currently set to '%s')\n", cfg.Timezone)
 		fmt.Println("### Display options")
 		fmt.Println("=> /settings/home-display Set max number of messages to display on homepage (0 to disable)")
 		fmt.Println("=> /settings/header-text Set your homepage header text")
