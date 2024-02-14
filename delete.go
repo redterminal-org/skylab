@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strings"
 	"os"
+	"io/ioutil"
 	"path/filepath"
-	//	"git.sr.ht/~satchlj/skylab/config"
+	"github.com/clseibold/go-gemini"
+	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
 )
 
@@ -47,6 +49,32 @@ func deleteMail() {
 				return
 			}
 
+			cfg, err := config.ExportConfig(username)
+			if err != nil {
+				fmt.Print("20 text/gemini\r\n")
+				fmt.Println("Error getting config for Tag:", err)
+				fmt.Println("=> inbox 📪 Inbox")
+				return
+			}
+			if cfg.TagSync {
+				client := gemini.DefaultClient
+				certFile, err := ioutil.ReadFile(cfg.CertFilename)
+				if err != nil {
+					fmt.Print("20 text/gemini\r\n")
+					fmt.Printf("Couldn't read cert: %w (%s)\n", err, cfg.CertFilename)
+					fmt.Println("=> inbox 📪 Inbox")
+					return
+				}
+				deletePath := "gemini://" + cfg.GMAPHost + ":" + cfg.GMAPPort + "/delete?" + query
+				resp, err := client.FetchWithCert(deletePath, certFile, certFile)
+				if err != nil || resp.Status != 20 {
+					fmt.Print("20 text/gemini\r\n")
+					fmt.Printf("Couldn't delete message: %w (%s)", err, deletePath)
+					fmt.Println("=> inbox 📪 Inbox")
+					return
+				}
+				defer resp.Body.Close()
+			}
 			fmt.Print("30 /trash\r\n")
 		}
 	} else {

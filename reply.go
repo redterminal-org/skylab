@@ -70,7 +70,7 @@ func reply() {
 			fmt.Println("=> inbox 📪 Inbox")
 			return
 		}
-		if err := tools.Tag(replyMsgid, "Sent", username); err != nil {
+		if err := tools.Tag(replyMsgid, "Sent", username, false); err != nil {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println("Error tagging as sent:", err)
 			fmt.Println("=> inbox 📪 Inbox")

@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
 	"strings"
+	"time"
 	"os"
     "path/filepath"
 //	"git.sr.ht/~satchlj/skylab/config"
@@ -25,28 +26,30 @@ func archive() {
 			return
 		}
 		if archived, _ := tools.HasTag(query, "Archive", username); !archived {
-			if err := tools.Tag(query, "Archive", username); err != nil {
+			if err := tools.Tag(query, "Archive", username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Println("Error: Could not move to Archive")
 				fmt.Println("=> inbox 📪 Inbox")
 			} else {
-				if err := tools.Untag(query, "Inbox", username); err != nil {
+				time.Sleep(50 * time.Millisecond)
+				if err := tools.Untag(query, "Inbox", username, true); err != nil {
 					fmt.Print("20 text/gemini\r\n")
-					fmt.Println("Error: Could not remove from Inbox")
+					fmt.Println("Error: Could not remove from Inbox", err)
 					fmt.Println("=> inbox 📪 Inbox")
 					return
 				}
 				fmt.Print("30 /\r\n")
 			}
 		} else {
-			if err := tools.Tag(query, "Inbox", username); err != nil {
+			if err := tools.Tag(query, "Inbox", username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Println("Error: Could not move to Inbox")
 				fmt.Println("=> inbox 📪 Inbox")
 			} else {
-				if err := tools.Untag(query, "Archive", username); err != nil {
+				time.Sleep(50 * time.Millisecond)
+				if err := tools.Untag(query, "Archive", username, true); err != nil {
 					fmt.Print("20 text/gemini\r\n")
-					fmt.Println("Error: Could not remove from Archive")
+					fmt.Println("Error: Could not remove from Archive", err)
 					fmt.Println("=> inbox 📪 Inbox")
 					return
 				}

@@ -26,7 +26,7 @@ func mail() {
 		}
 		sent, _ := tools.HasTag(query, "Sent", username)
 		draft, _ := tools.HasTag(query, "Drafts", username)
-		if err := tools.Untag(query, "Unread", username); err != nil {
+		if err := tools.Untag(query, "Unread", username, true); err != nil {
 			fmt.Print("Error: Could not mark as read")
 		}
 		fmt.Print("20 text/gemini\r\n")

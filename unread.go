@@ -18,7 +18,7 @@ func unread() {
 			fmt.Println("30 /\r\n")
 			return
 		}
-		if err := tools.Tag(query, "Unread", username); err != nil {
+		if err := tools.Tag(query, "Unread", username, true); err != nil {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println("Error: Could not mark as unread")
 			fmt.Println("=> inbox 📪 Inbox")

@@ -71,6 +71,7 @@ CertFilename: $user_dir/cert.pem
 AutoFetch: $auto_fetch
 Timezone: $timezone
 GMAP: $GMAP
+TagSync: false
 DisplayNumber: 4
 # Add other configuration fields as needed
 EOF

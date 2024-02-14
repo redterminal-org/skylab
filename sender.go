@@ -45,13 +45,13 @@ func sender() {
 		fmt.Println("=> inbox 📪 Inbox")
 		return
 	}
-	if err := tools.Tag(msgid, "Sent", username); err != nil {
+	if err := tools.Tag(msgid, "Sent", username, false); err != nil {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("Error tagging as sent:", err)
 		fmt.Println("=> inbox 📪 Inbox")
 		return
 	}
-	if err := tools.Untag(msgid, "Drafts", username); err != nil {
+	if err := tools.Untag(msgid, "Drafts", username, false); err != nil {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("Error untagging as draft:", err)
 		fmt.Println("=> inbox 📪 Inbox")

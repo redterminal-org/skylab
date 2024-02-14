@@ -25,7 +25,7 @@ func trash() {
 			return
 		}
 		if trashed, _ := tools.HasTag(query, "Trash", username); !trashed {
-			if err := tools.Tag(query, "Trash", username); err != nil {
+			if err := tools.Tag(query, "Trash", username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Println("Error: Could not move to Trash")
 				fmt.Println("=> inbox 📪 Inbox")
@@ -33,7 +33,7 @@ func trash() {
 			}
 			fmt.Print("30 /\r\n")
 		} else {
-			if err := tools.Untag(query, "Trash", username); err != nil {
+			if err := tools.Untag(query, "Trash", username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Println("Error: Could not remove from Trash")
 				fmt.Println("=> inbox 📪 Inbox")

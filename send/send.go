@@ -34,12 +34,17 @@ func SendSkymail(skymail tools.Skymail, certFilename string) error {
 			} else {
 				msgToSend = mail.String()
 			}
+			msgToSend = strings.ReplaceAll(msgToSend, "\r", "")
 			resp, err := c.SendWithCert("misfin://"+address, certFile, certFile, msgToSend) // TODO: Make sure this strips all '\r'
 			if err != nil {
 				return fmt.Errorf("Sending gemmail to %s failed: %w\n", address, err)
 			} else if (resp.Status == 59 || resp.Status == 40 || resp.Status == 60) && !misfinB { // Invalid request, try with Misfin(B) format
 				misfinB = true
 				c = misfin_client.DefaultClient_MisfinB
+				redirectAttempt = 0
+				continue
+			} else if resp.Status == 44 {
+				time.Sleep(250 * time.Millisecond)
 				redirectAttempt = 0
 				continue
 			} else if redirectAttempt < 5 && (resp.Status == misfin_client.StatusRedirect || resp.Status == misfin_client.StatusRedirectPermanent) {

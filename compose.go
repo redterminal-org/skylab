@@ -53,7 +53,7 @@ func compose() {
 			fmt.Println("=> inbox 📪 Inbox")
 			return
 		}
-		if err := tools.Tag(msgid, "Drafts", username); err != nil {
+		if err := tools.Tag(msgid, "Drafts", username, false); err != nil {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println("Error tagging as draft:", err)
 			fmt.Println("=> inbox 📪 Inbox")

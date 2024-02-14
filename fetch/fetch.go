@@ -82,10 +82,10 @@ func FetchGembox(username string) error {
 		if err != nil {
 			fmt.Println("Error saving message:", err)
 		}
-		if err := tools.Tag(msgid, "Unread", username); err != nil {
+		if err := tools.Tag(msgid, "Unread", username, false); err != nil {
 			fmt.Println("Error tagging new messages as unread:", err)
 		}
-		if err := tools.Tag(msgid, "Inbox", username); err != nil {
+		if err := tools.Tag(msgid, "Inbox", username, false); err != nil {
 			fmt.Println("Error adding new message to Inbox:", err)
 		}
 		// Print confirmation
@@ -238,7 +238,7 @@ func FetchGemboxGMAP(username string) error {
 			fmt.Println("Error saving message:", err)
 		}
 		for _, tag := range mail.Tags {
-			if err := tools.Tag(mail.Msgid, tag, username); err != nil {
+			if err := tools.Tag(mail.Msgid, tag, username, false); err != nil {
 				fmt.Println("Error tagging new message", err)
 			}
 		}

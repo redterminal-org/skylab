@@ -44,7 +44,7 @@ func tag() {
 	}
 	if !reserved {
 		if tagged, _ := tools.HasTag(msgid, query, username); !tagged {
-			if err := tools.Tag(msgid, query, username); err != nil {
+			if err := tools.Tag(msgid, query, username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Printf("Error: Could not tag as %s.\n", query)
 				fmt.Println("=> inbox 📪 Inbox")
@@ -53,7 +53,7 @@ func tag() {
 				return
 			}
 		} else {
-			if err := tools.Untag(msgid, query, username); err != nil {
+			if err := tools.Untag(msgid, query, username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Printf("Error: Could not tag as %s.\n", query)
 				fmt.Println("=> inbox 📪 Inbox")

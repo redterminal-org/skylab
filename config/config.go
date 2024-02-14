@@ -16,6 +16,9 @@ type Config struct {
 	GMAP				bool	`yaml:"GMAP"`
 	DisplayNumber		int		`yaml:"DisplayNumber"`
 	HeaderText			string	`yaml:"HeaderText"`
+	TagSync				bool	`yaml:"TagSync"`
+	GMAPHost			string	`yaml:"GMAPHost"`
+	GMAPPort			string	`yaml:"GMAPPort"`
 	// Add other configuration fields as needed
 }
 

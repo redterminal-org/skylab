@@ -12,8 +12,10 @@ import (
 	"io"
 	"io/ioutil"
 	"sort"
-	"git.sr.ht/~satchlj/skylab/config"
+
+	"github.com/clseibold/go-gemini"
 	"gopkg.in/yaml.v2"
+	"git.sr.ht/~satchlj/skylab/config"
 )
 
 type Skymail struct {
@@ -213,7 +215,7 @@ func GetMailPreview(message Skymail) (string, error) {
 	return previewString, nil
 }
 
-func Tag(msgid, tagName, username string) error {
+func Tag(msgid, tagName, username string, sync bool) error {
     // Create the path to the symlink destination
 	destDir := filepath.Join("..", "users", username, "tags", tagName)
     destPath := filepath.Join(destDir, msgid+".msfn")
@@ -226,6 +228,24 @@ func Tag(msgid, tagName, username string) error {
         // Other error occurred, return the error
         return err
     }
+	cfg, err := config.ExportConfig(username)
+	if err != nil {
+		return fmt.Errorf("Error getting config for Tag:", err)
+	}
+	if cfg.TagSync && sync {
+		client := gemini.DefaultClient
+		certFile, err := ioutil.ReadFile(cfg.CertFilename)
+		if err != nil {
+			return fmt.Errorf("Couldn't read cert: %w (%s)", err, cfg.CertFilename)
+		}
+		tagPath := "gemini://" + cfg.GMAPHost + ":" + cfg.GMAPPort + "/tag/" + tagName + "?" + msgid
+		// Fetch gembox from Gemini server
+		resp, err := client.FetchWithCert(tagPath, certFile, certFile)
+		if err != nil || resp.Status != 20 {
+			return fmt.Errorf("Couldn't tag the message: %w (%s)", err, tagPath)
+		}
+		defer resp.Body.Close()
+	}
 
     // Create the parent directory for the symlink
     if err := os.MkdirAll(destDir, 0755); err != nil {
@@ -240,7 +260,7 @@ func Tag(msgid, tagName, username string) error {
 }
 
 // RemoveSymlink removes the symlink from ../tags/tagName/msgid.msfn
-func Untag(msgid, tagName, username string) error {
+func Untag(msgid, tagName, username string, sync bool) error {
     // Create the path to the symlink
     symlinkPath := filepath.Join("..", "users", username, "tags", tagName, msgid+".msfn")
 
@@ -253,6 +273,25 @@ func Untag(msgid, tagName, username string) error {
         return err
     }
 
+	cfg, err := config.ExportConfig(username)
+	if err != nil {
+		return fmt.Errorf("Error getting config for Tag:", err)
+	}
+	if cfg.TagSync && sync {
+		client := gemini.DefaultClient
+		certFile, err := ioutil.ReadFile(cfg.CertFilename)
+		if err != nil {
+			return fmt.Errorf("Couldn't read cert: %w (%s)", err, cfg.CertFilename)
+		}
+		tagPath := "gemini://" + cfg.GMAPHost + ":" + cfg.GMAPPort + "/untag/" + tagName + "?" + msgid
+		time.Sleep(50 * time.Millisecond)
+		// Fetch gembox from Gemini server
+		resp, err := client.FetchWithCert(tagPath, certFile, certFile)
+		if err != nil || resp.Status != 20 {
+			return fmt.Errorf("Couldn't untag the message: %w (%s)", err, tagPath)
+		}
+		defer resp.Body.Close()
+	}
     // Remove the symlink
     if err := os.Remove(symlinkPath); err != nil {
         return err
@@ -300,8 +339,7 @@ func HasTag(msgid, tagName, username string) (bool, error) {
     symlinkPath := filepath.Join("..", "users", username, "tags", tagName, msgid+".msfn")
 
     // Check if the symlink exists
-    _, err := os.Lstat(symlinkPath)
-    if err != nil {
+    if _, err := os.Lstat(symlinkPath); err != nil {
         if os.IsNotExist(err) {
             // Symlink does not exist
             return false, nil
@@ -626,4 +664,13 @@ func generateRandomPassword() string {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
 	return string(b)
+}
+
+func contains(slice []string, msgid string) bool {
+    for _, item := range slice {
+        if strings.TrimSpace(item) == strings.TrimSpace(msgid) {
+            return true
+        }
+    }
+    return false
 }
