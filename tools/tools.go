@@ -238,7 +238,16 @@ func Tag(msgid, tagName, username string, sync bool) error {
 		if err != nil {
 			return fmt.Errorf("Couldn't read cert: %w (%s)", err, cfg.CertFilename)
 		}
-		tagPath := "gemini://" + cfg.GMAPHost + ":" + cfg.GMAPPort + "/tag/" + tagName + "?" + msgid
+		if cfg.GMAPHost == "" {
+			return fmt.Errorf("Your GMAP host configuration is wrong. Go fix it:\n=> settings ⚙️ Settings")
+		}
+		var port string
+		if cfg.GMAPPort == "" {
+			port = "1958"
+		} else {
+			port = cfg.GMAPPort
+		}
+		tagPath := "gemini://" + cfg.GMAPHost + ":" + port + "/tag/" + tagName + "?" + msgid
 		// Fetch gembox from Gemini server
 		resp, err := client.FetchWithCert(tagPath, certFile, certFile)
 		if err != nil || resp.Status != 20 {
@@ -283,7 +292,16 @@ func Untag(msgid, tagName, username string, sync bool) error {
 		if err != nil {
 			return fmt.Errorf("Couldn't read cert: %w (%s)", err, cfg.CertFilename)
 		}
-		tagPath := "gemini://" + cfg.GMAPHost + ":" + cfg.GMAPPort + "/untag/" + tagName + "?" + msgid
+		if cfg.GMAPHost == "" {
+			return fmt.Errorf("Your GMAP host configuration is wrong. Go fix it:\n=> settings ⚙️ Settings")
+		}
+		var port string
+		if cfg.GMAPPort == "" {
+			port = "1958"
+		} else {
+			port = cfg.GMAPPort
+		}
+		tagPath := "gemini://" + cfg.GMAPHost + ":" + port + "/untag/" + tagName + "?" + msgid
 		time.Sleep(50 * time.Millisecond)
 		// Fetch gembox from Gemini server
 		resp, err := client.FetchWithCert(tagPath, certFile, certFile)

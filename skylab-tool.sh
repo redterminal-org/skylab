@@ -13,7 +13,7 @@ usage() {
 skylab_init() {
     # Create users directory if it doesn't exist
     read -p "Enter directory path for Skylab: " directory_input
-    read -p "Enter hostname: " hostname
+    read -p "Enter Skylab hostname: " hostname
     directory=${directory_input/#\~/${HOME}}  # Replace ~ with $HOME
     if [ ! -d "$directory/users" ]; then
         mkdir -p "$directory/users"
@@ -60,6 +60,7 @@ add_user() {
 
     # Ask for configuration values
     read -p "Enter GeminiFetchAddress: " gemini_fetch_address
+    read -p "Enter misfin server hostname: " host
     read -p "Are you using a GMAP-style gembox? (true/false): " GMAP
     read -p "Enter AutoFetch (true/false): " auto_fetch
     read -p "Enter Timezone: " timezone
@@ -71,6 +72,8 @@ CertFilename: $user_dir/cert.pem
 AutoFetch: $auto_fetch
 Timezone: $timezone
 GMAP: $GMAP
+GMAPPort: 1958
+GMAPHost: $host
 TagSync: false
 DisplayNumber: 4
 # Add other configuration fields as needed

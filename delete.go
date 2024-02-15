@@ -65,7 +65,19 @@ func deleteMail() {
 					fmt.Println("=> inbox 📪 Inbox")
 					return
 				}
-				deletePath := "gemini://" + cfg.GMAPHost + ":" + cfg.GMAPPort + "/delete?" + query
+				if cfg.GMAPHost == "" {
+					fmt.Print("20 text/gemini\r\n")
+					fmt.Println("Your GMAP host configuration is wrong. Go fix it:")
+					fmt.Println("=> settings ⚙️ Settings")
+					return
+				}
+				var port string
+				if cfg.GMAPPort == "" {
+					port = "1958"
+				} else {
+					port = cfg.GMAPPort
+				}
+				deletePath := "gemini://" + cfg.GMAPHost + ":" + port + "/delete?" + query
 				resp, err := client.FetchWithCert(deletePath, certFile, certFile)
 				if err != nil || resp.Status != 20 {
 					fmt.Print("20 text/gemini\r\n")
