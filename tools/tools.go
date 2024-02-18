@@ -12,6 +12,7 @@ import (
 	"io"
 	"io/ioutil"
 	"sort"
+	"regexp"
 
 	"github.com/clseibold/go-gemini"
 	"gopkg.in/yaml.v2"
@@ -154,13 +155,18 @@ func GetMessageLinkLine(message Skymail, msgid, username string) (string, error)
 	if err != nil {
 		return "", fmt.Errorf("Error getting config for timezone:", err)
 	}
+	sitecfg, err := config.ExportSiteConfig()
+	if err != nil {
+		return "", fmt.Errorf("Couldn't export site-wide config:", err)
+	}
+	skylabPath := sitecfg.SkylabPath
 	location, err := time.LoadLocation(cfg.Timezone)
 	if err != nil {
 		return "", fmt.Errorf("Error loading timezone:", err)
 	}
 	ts := message.Timestamps[0].In(location)
 	// Create string
-	linkString := fmt.Sprintf("=> /mail?%s %s %s — %s: %s", msgid, icon, ts.Format("2006-01-02 03:04 PM"), IsolateAddress(message.Senders[0]), subject)
+	linkString := fmt.Sprintf("=> /%s/mail?%s %s %s — %s: %s", skylabPath, msgid, icon, ts.Format("2006-01-02 03:04 PM"), IsolateAddress(message.Senders[0]), subject)
 	return linkString, nil
 }
 
@@ -247,8 +253,8 @@ func Tag(msgid, tagName, username string, sync bool) error {
 		tagPath := "gemini://" + cfg.GMAPHost + ":" + port + "/tag/" + tagName + "?" + msgid
 		// Fetch gembox from Gemini server
 		resp, err := client.FetchWithCert(tagPath, certFile, certFile)
-		if err != nil || resp.Status != 20 {
-			return fmt.Errorf("Couldn't tag the message: %w (%s)", err, tagPath)
+		if err != nil || (resp.Status != 20 && resp.Status != 51) {
+			return fmt.Errorf("Couldn't tag the message: %w (%s) Resp: %d", err, tagPath, resp.Status)
 		}
 		defer resp.Body.Close()
 	}
@@ -302,7 +308,7 @@ func Untag(msgid, tagName, username string, sync bool) error {
 		time.Sleep(50 * time.Millisecond)
 		// Fetch gembox from Gemini server
 		resp, err := client.FetchWithCert(tagPath, certFile, certFile)
-		if err != nil || resp.Status != 20 {
+		if err != nil || (resp.Status != 20 && resp.Status != 51) {
 			return fmt.Errorf("Couldn't untag the message: %w (%s)", err, tagPath)
 		}
 		defer resp.Body.Close()
@@ -409,16 +415,17 @@ func WalkTag(tagName, username string, space bool, n ...int) error {
         return err
     }
 	sortByTime := func(i, j int) bool {
+		timeRegex := regexp.MustCompile(`\d{4}-\d{2}-\d{2} \d{2}:\d{2} (AM|PM)`)
+		strI := timeRegex.FindString(msgs[i])
+		strJ := timeRegex.FindString(msgs[j])
         timeFormat := "2006-01-02 03:04 PM"
-        strI := msgs[i][46:65] // Extract timestamp from string i
-        strJ := msgs[j][46:65] // Extract timestamp from string j
         timeI, err := time.Parse(timeFormat, strI)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error sorting by time", err)
 		}
         timeJ, err := time.Parse(timeFormat, strJ)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error sorting by time", err)
 		}
         return timeI.After(timeJ)
     }
@@ -673,7 +680,7 @@ func GenerateOneTimePassword(username string) (string, error) {
 // generateRandomPassword generates a random password.
 func generateRandomPassword() string {
 	rand.Seed(time.Now().UnixNano())
-	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, 10)
 	for i := range b {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]

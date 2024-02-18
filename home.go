@@ -16,6 +16,13 @@ func home() {
 		fmt.Println("Couldn't get the config info:", err)
 		return
 	}
+	sitecfg, err := config.ExportSiteConfig()
+	if err != nil {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("Couldn't export site-wide config", err)
+		return
+	}
+	skylabPath := sitecfg.SkylabPath
 	var fetchGembox func(username string) error
 	if cfg.GMAP {
 		fetchGembox = fetch.FetchGemboxGMAP
@@ -32,7 +39,7 @@ func home() {
 	}
 
 	if query == "fetch" {
-		fmt.Print("30 /\r\n")
+		fmt.Printf("30 /%s\r\n", skylabPath)
 	}
 	fmt.Print("20 text/gemini\r\n")
 	if cfg.HeaderText != "" {
@@ -70,18 +77,18 @@ func home() {
 //		fmt.Println("Error counting Trash:")
 //		fmt.Println(err)
 //	}
-	fmt.Printf("=> inbox 📪 Inbox%s\n", inboxCount)
-	fmt.Println("=> compose/new ✍️ Compose")
+	fmt.Printf("=> /%s/inbox 📪 Inbox%s\n", skylabPath, inboxCount)
+	fmt.Printf("=> /%s/compose/new ✍️ Compose\n", skylabPath)
 //	fmt.Printf("=> archive 🗄️ Archive%s\n", archiveCount)
-	fmt.Println("=> archive 🗄️ Archive")
+	fmt.Printf("=> /%s/archive 🗄️ Archive\n", skylabPath)
 //	fmt.Printf("=> sent 📤 Sent%s\n", sentCount)
-	fmt.Println("=> sent ☞ Sent")
-	fmt.Printf("=> drafts 📝 Drafts%s\n", draftsCount)
+	fmt.Printf("=> /%s/sent ☞ Sent\n", skylabPath)
+	fmt.Printf("=> /%s/drafts 📝 Drafts%s\n", skylabPath, draftsCount)
 //	fmt.Printf("=> trash 🗑️ Trash%s\n", trashCount)
-	fmt.Println("=> trash 🗑️ Trash")
-	fmt.Println("=> tags 🏷️ Tags")
-	fmt.Println("=> settings ⚙️ Settings")
+	fmt.Printf("=> /%s/trash 🗑️ Trash\n", skylabPath)
+	fmt.Printf("=> /%s/tags 🏷️ Tags\n", skylabPath)
+	fmt.Printf("=> /%s/settings ⚙️ Settings\n", skylabPath)
 	if !cfg.AutoFetch {
-		fmt.Println("=> /?fetch 🔃 Check for New Mail")
+		fmt.Printf("=> /%s?fetch 🔃 Check for New Mail", skylabPath)
 	}
 }

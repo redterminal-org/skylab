@@ -6,7 +6,7 @@ import (
 	"time"
 	"os"
     "path/filepath"
-//	"git.sr.ht/~satchlj/skylab/config"
+	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
 )
 
@@ -18,11 +18,18 @@ func archive() {
 		fmt.Println("That query is not allowed")
 		return
 	}
+	sitecfg, err := config.ExportSiteConfig()
+	if err != nil {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("Couldn't export site-wide config", err)
+		return
+	}
+	skylabPath := sitecfg.SkylabPath
 	if query != "" {
 		filename := filepath.Join("..", "users", username, "STORE", query+".msfn")
 		_, err := os.Stat(filename)
 		if err != nil {
-			fmt.Println("30 /\r\n")
+			fmt.Printf("30 /%s\r\n", skylabPath)
 			return
 		}
 		if archived, _ := tools.HasTag(query, "Archive", username); !archived {
@@ -38,7 +45,7 @@ func archive() {
 					fmt.Println("=> inbox 📪 Inbox")
 					return
 				}
-				fmt.Print("30 /\r\n")
+				fmt.Printf("30 /%s\r\n", skylabPath)
 			}
 		} else {
 			if err := tools.Tag(query, "Inbox", username, true); err != nil {
@@ -53,7 +60,7 @@ func archive() {
 					fmt.Println("=> inbox 📪 Inbox")
 					return
 				}
-				fmt.Print("30 /inbox\r\n")
+				fmt.Printf("30 /%s\r\n", skylabPath)
 			}
 		}
 	} else {

@@ -25,10 +25,14 @@ func settings() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
+	skylabPath := sitecfg.SkylabPath
+	if skylabPath != "" {
+		path = strings.TrimPrefix(path, "/"+skylabPath)
+	}
 	switch path {
 	case "/settings/fetch-address":
 		if !sitecfg.ExposeSettings {
-			fmt.Print("30 /\r\n")
+			fmt.Printf("30 /%s\r\n", skylabPath)
 			return
 		}
 		if query != "" {
@@ -36,7 +40,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Print("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		} else {
 			fmt.Print("10 Enter your gembox fetch address (gemini://example.org:1958/fetch or similar):\r\n")
@@ -48,7 +52,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Print("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		} else {
 			fmt.Print("10 Write your own homepage header. Default is 'Misfin ✉️'\r\n")
@@ -56,7 +60,7 @@ func settings() {
 		}
 	case "/settings/cert-filename":
 		if !sitecfg.ExposeSettings {
-			fmt.Print("30 /\r\n")
+			fmt.Printf("30 /%s\r\n", skylabPath)
 			return
 		}
 		if query != "" {
@@ -64,7 +68,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Print("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		} else {
 			fmt.Print("10 Ask your server admin what this should be if you're not sure. Use an absolute path to make things easier (/home/misfinuser/skylab/users/yourname/cert.pem or similar):\r\n")
@@ -72,7 +76,7 @@ func settings() {
 		}
 	case "/settings/gmap-parse":
 		if !sitecfg.ExposeSettings {
-			fmt.Print("30 /\r\n")
+			fmt.Printf("30 /%s\r\n", skylabPath)
 			return
 		}
 		if query == "true" {
@@ -80,7 +84,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Print("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		}
 		if query == "false" {
@@ -88,7 +92,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Print("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		} else {
 			fmt.Print("10 Please enter 'true' or 'false':\r\n")
@@ -96,7 +100,7 @@ func settings() {
 		}
 	case "/settings/gmap-port":
 		if !sitecfg.ExposeSettings {
-			fmt.Print("30 /\r\n")
+			fmt.Printf("30 /%s\r\n", skylabPath)
 			return
 		}
 		_, err := strconv.Atoi(query)
@@ -105,7 +109,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Println("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		} else {
 			fmt.Print("10 Please enter the port by which to make gemini requests to your GMAP misfin server (default 1958):\r\n")
@@ -113,7 +117,7 @@ func settings() {
 		}
 	case "/settings/gmap-host":
 		if !sitecfg.ExposeSettings {
-			fmt.Print("30 /\r\n")
+			fmt.Printf("30 /%s\r\n", skylabPath)
 			return
 		}
 		if query != "" {
@@ -121,7 +125,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Print("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		} else {
 			fmt.Print("10 Enter the hostname of your GMAP misfin server (example.org):\r\n")
@@ -134,7 +138,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Println("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		} else {
 			fmt.Print("10 Please enter an integer number of recent messages to display on the home page ('4' recommended):\r\n")
@@ -146,7 +150,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Print("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		}
 		if query == "false" {
@@ -154,7 +158,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Print("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		} else {
 			fmt.Print("10 Please enter 'true' or 'false':\r\n")
@@ -166,7 +170,7 @@ func settings() {
 				fmt.Println("Couldn't set the config value:", err)
 				return
 			}
-			fmt.Print("30 /settings\r\n")
+			fmt.Printf("30 /%s/settings\r\n", skylabPath)
 			return
 		} else {
 			fmt.Print("10 Please enter your tz database time zone (America/New_York or similar):\r\n")
@@ -186,24 +190,24 @@ func settings() {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("# Edit Settings ⚙️")
 		fmt.Println("### Client behavior")
-		fmt.Println("=> /settings/autofetch Set autofetch true/false")
-		fmt.Printf("=> /settings/timezone Set your tz database time zone (currently set to '%s')\n", cfg.Timezone)
+		fmt.Printf("=> /%s/settings/autofetch Set autofetch true/false\n", skylabPath)
+		fmt.Printf("=> /%s/settings/timezone Set your tz database time zone (currently set to '%s')\n", skylabPath, cfg.Timezone)
 		fmt.Println("### Display options")
-		fmt.Println("=> /settings/home-display Set max number of messages to display on homepage (0 to disable)")
-		fmt.Println("=> /settings/header-text Set your homepage header text")
+		fmt.Printf("=> /%s/settings/home-display Set max number of messages to display on homepage (0 to disable)\n", skylabPath)
+		fmt.Printf("=> /%s/settings/header-text Set your homepage header text\n", skylabPath)
 		if sitecfg.ExposeSettings {
 			fmt.Println("### Misfin account configuration")
-			fmt.Println("=> /settings/cert-filename Edit your cert filename (careful with this one! Maybe have your admin do it for you?)")
-			fmt.Println("=> /settings/fetch-address Edit gembox fetch address")
-			fmt.Println("=> /settings/gmap-parse Use GMAP Gembox parsing")
+			fmt.Printf("=> /%s/settings/cert-filename Edit your cert filename (careful with this one! Maybe have your admin do it for you?)\n", skylabPath)
+			fmt.Printf("=> /%s/settings/fetch-address Edit gembox fetch address\n", skylabPath)
+			fmt.Printf("=> /%s/settings/gmap-parse Use GMAP Gembox parsing\n", skylabPath)
 			fmt.Println("### GMAP settings")
 			fmt.Println("You can ignore this section if you're not using multiple clients with the same server")
-			fmt.Println("=> /settings/gmap-host Hostname of GMAP misfin server")
-			fmt.Println("=> /settings/gmap-port Port number of GMAP misfin server (1958 by default)")
-			fmt.Println("=> /settings/tag-sync Tell the server when you modify message tags (sync unread status, etc)")
+			fmt.Printf("=> /%s/settings/gmap-host Hostname of GMAP misfin server\n", skylabPath)
+			fmt.Printf("=> /%s/settings/gmap-port Port number of GMAP misfin server (1958 by default)\n", skylabPath)
+			fmt.Printf("=> /%s/settings/tag-sync Tell the server when you modify message tags (sync unread status, etc)\n", skylabPath)
 		}
 		fmt.Println("### Gemini client certificates for Skylab")
-		fmt.Println("=> /settings/password Get a temporary password\n(so that you can add a new gemini client certificate to your account)")
+		fmt.Printf("=> /%s/settings/password Get a temporary password\n(so that you can add a new gemini client certificate to your account)\n", skylabPath)
 		fmt.Println("### Bug Reports and Feature Requests")
 		fmt.Println("=> gemini://bbs.geminispace.org/s/Skylab Submit bug reports and feature requests here")
 	}

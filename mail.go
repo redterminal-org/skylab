@@ -5,13 +5,20 @@ import (
 	"os"
 	"strings"
 	"path/filepath"
-//	"git.sr.ht/~satchlj/skylab/config"
+	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
 )
 
 func mail() {
 	username, _ := tools.Authenticate()
 	query := os.Getenv("QUERY_STRING")
+	sitecfg, err := config.ExportSiteConfig()
+	if err != nil {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("Couldn't export site-wide config", err)
+		return
+	}
+	skylabPath := sitecfg.SkylabPath
 	if query != "" {
 		if strings.Contains(query, "..") {
 			fmt.Print("20 text/gemini\r\n")
@@ -21,7 +28,7 @@ func mail() {
 		filename := filepath.Join("..", "users", username, "STORE", query+".msfn")
 		message, err := tools.ParseSkymail(filename)
 		if err != nil {
-			fmt.Println("30 /\r\n")
+			fmt.Printf("30 /%s\r\n", skylabPath)
 			return
 		}
 		sent, _ := tools.HasTag(query, "Sent", username)
@@ -64,6 +71,7 @@ func mail() {
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
 				fmt.Printf("=> tag/%s 🏷️ Manage tags\n", query)
 				fmt.Println("=> inbox 📪 Go to Inbox")
+				fmt.Printf("=> /%s 🏠 Go Home\n", skylabPath)
 				return
 			}
 			if archived, _ := tools.HasTag(query, "Archive", username); archived {
@@ -74,6 +82,7 @@ func mail() {
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
 				fmt.Printf("=> tag/%s 🏷️ Manage tags\n", query)
 				fmt.Println("=> inbox 📪 Go to Inbox")
+				fmt.Printf("=> /%s 🏠 Go Home\n", skylabPath)
 				return
 			}
 			if sent {
@@ -82,6 +91,7 @@ func mail() {
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
 				fmt.Printf("=> tag/%s 🏷️ Manage tags\n", query)
 				fmt.Println("=> inbox 📪 Go to Inbox")
+				fmt.Printf("=> /%s 🏠 Go Home\n", skylabPath)
 				return
 			}
 			if draft {
@@ -89,15 +99,17 @@ func mail() {
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)
 				fmt.Printf("=> tag/%s 🏷️ Manage tags\n", query)
 				fmt.Printf("=> send?%s ☞ Send\n", query)
+				fmt.Printf("=> /%s 🏠 Go Home\n", skylabPath)
 				return
 			}
 		} else {
 			fmt.Printf("=> trash?%s 🛟 Take out of Trash\n", query)
 			fmt.Printf("=> delete?%s ❌ Delete Permanently\n", query)
 			fmt.Println("=> inbox 📪 Go to Inbox")
+			fmt.Printf("=> /%s 🏠 Go Home\n", skylabPath)
 			return
 		}
 	} else {
-		fmt.Print("30 /\r\n")
+		fmt.Printf("30 /%s\r\n", skylabPath)
 	}
 }

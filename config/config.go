@@ -23,7 +23,8 @@ type Config struct {
 }
 
 type SiteConfig struct {
-	ExposeSettings	bool `yaml:"ExposeSettings"`
+	ExposeSettings	bool 	`yaml:"ExposeSettings"`
+	SkylabPath		string	`yaml:"SkylabPath"`
 }
 
 func ExportConfig(username string) (*Config, error) {

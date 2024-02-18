@@ -7,6 +7,7 @@ import (
 	"unicode"
 	"path/filepath"
 	"git.sr.ht/~satchlj/skylab/tools"
+	"git.sr.ht/~satchlj/skylab/config"
 )
 
 func tag() {
@@ -17,12 +18,24 @@ func tag() {
 		fmt.Println("That query is not allowed")
 		return
 	}
+	sitecfg, err := config.ExportSiteConfig()
+	if err != nil {
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("Couldn't export site-wide config", err)
+		return
+	}
+	skylabPath := sitecfg.SkylabPath
 	path := os.Getenv("PATH_INFO")
 	if strings.Contains(path, "..") {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("That query is not allowed")
 	}
-	msgid := strings.TrimPrefix(path, "/tag/")
+	var msgid string
+	if skylabPath != "" {
+		msgid = strings.TrimPrefix(path, "/"+skylabPath+"/tag/")
+	} else {
+		msgid = strings.TrimPrefix(path, "/tag/")
+	}
 	filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 	validTag := true
 	for _, char := range query {
@@ -31,7 +44,12 @@ func tag() {
 		}
 	}
 	if _, err := os.Stat(filename); err != nil || validTag != true {
-		fmt.Print("30 /\r\n")
+		fmt.Print("20 text/gemini\r\n COMPLAIN\n", err, "\n")
+		fmt.Println(path)
+		fmt.Println(validTag)
+		fmt.Println(query)
+		fmt.Println(msgid)
+		fmt.Printf("30 /%s\r\n", skylabPath)
 		return
 	}
 	reservedTags := []string{"", "Inbox", "Archive", "Trash", "Sent", "Unread", "Drafts", "new"}
@@ -47,18 +65,18 @@ func tag() {
 			if err := tools.Tag(msgid, query, username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Printf("Error: Could not tag as %s.\n", query)
-				fmt.Println("=> inbox 📪 Inbox")
+				fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 			} else {
-				fmt.Printf("30 /tags?%s\r\n", query)
+				fmt.Printf("30 /%s/tag/%s\r\n", skylabPath, msgid)
 				return
 			}
 		} else {
 			if err := tools.Untag(msgid, query, username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Printf("Error: Could not tag as %s.\n", query)
-				fmt.Println("=> inbox 📪 Inbox")
+				fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 			} else {
-				fmt.Printf("30 /mail?%s\r\n", msgid)
+				fmt.Printf("30 /%s/tag/%s\r\n", skylabPath, msgid)
 			}
 		}
 	} else {
@@ -75,16 +93,16 @@ func tag() {
 				} else {
 					actionName = "Remove"
 				}
-				fmt.Printf("=> /tag/%s?%s 🏷️ %s tag %s\n", msgid, option, actionName, option)
+				fmt.Printf("=> /%s/tag/%s?%s 🏷️ %s tag %s\n", skylabPath, msgid, option, actionName, option)
 			}
-			fmt.Printf("=> /tag/%s?new 🏷️ Assign new tag\n", msgid)
+			fmt.Printf("=> /%s/tag/%s?new 🏷️ Assign new tag\n", skylabPath, msgid)
 			return
 		} else if query == "new" {
 			fmt.Print("10 Enter name for new tag (you may use letters, digits, underscores, and dashes):\r\n")
 		} else {
 			fmt.Print("20 text/gemini\r\n")
-			fmt.Println("the tag", query, "is reserved.")
-			fmt.Println("=> tags 🏷️ tags")
+			fmt.Println("The tag", query, "is reserved.")
+			fmt.Printf("=> /%s/tags 🏷️ tags", skylabPath)
 		}
 	}
 }
