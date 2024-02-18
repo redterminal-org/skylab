@@ -1,0 +1,11 @@
+AutoFetch: true
+CertFilename: /Users/student-loan/skylab-run/users/satya/cert.pem
+DisplayNumber: 4
+GMAP: true
+GMAPHost: satch.xyz
+GMAPPort: 1958
+GeminiFetchAddress: gemini://satch.xyz:1958/fetch
+HeaderText: Misfin ✉️
+LastFetched: "2024-02-18 17:31:15"
+TagSync: true
+Timezone: America/New_York
