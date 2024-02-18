@@ -97,6 +97,7 @@ func tag() {
 				fmt.Printf("=> %s/tag/%s?%s 🏷️ %s tag %s\n", skylabPath, msgid, option, actionName, option)
 			}
 			fmt.Printf("=> %s/tag/%s?new 🏷️ Assign new tag\n", skylabPath, msgid)
+			fmt.Printf("=> %s/mail?%s ◎ View message\n", skylabPath, msgid)
 			return
 		} else if query == "new" {
 			fmt.Print("10 Enter name for new tag (you may use letters, digits, underscores, and dashes):\r\n")
