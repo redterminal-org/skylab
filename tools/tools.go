@@ -12,7 +12,6 @@ import (
 	"io"
 	"io/ioutil"
 	"sort"
-	"regexp"
 
 	"github.com/clseibold/go-gemini"
 	"gopkg.in/yaml.v2"
@@ -106,20 +105,20 @@ func IsolateAddress(input string) string {
     return input[:spaceIndex]
 }
 
-func PrintLinkAndPreview(msgid, username string, space bool) (string, error) {
+func PrintLinkAndPreview(msgid, username string, space bool) (string, time.Time, error) {
     // Get file contents as message string
     filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
     message, err := ParseSkymail(filename)
     if err != nil {
-        return "", err
+        return "", time.Time{}, err
     }
     linkline, err := GetMessageLinkLine(message, msgid, username)
     if err != nil {
-        return "", err
+        return "", time.Time{}, err
     }
     preview, err := GetMailPreview(message)
     if err != nil {
-        return "", err
+        return "", time.Time{}, err
     }
     // Construct the formatted text
 	var formattedText string
@@ -128,7 +127,7 @@ func PrintLinkAndPreview(msgid, username string, space bool) (string, error) {
 	} else {
 		formattedText = fmt.Sprintf("%s\n%s", linkline, preview)
 	}
-	return formattedText, nil
+	return formattedText, message.Timestamps[0], nil
 }
 
 // Create message link line
@@ -384,7 +383,11 @@ func HasTag(msgid, tagName, username string) (bool, error) {
 
 func WalkTag(tagName, username string, space bool, n ...int) error {
 	dirName := filepath.Join("..", "users", username, "tags", tagName)
-	var msgs []string
+	type Preview struct {
+        Text  string
+        Timestamp time.Time
+    }
+	var msgs []Preview
 	err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
@@ -404,12 +407,12 @@ func WalkTag(tagName, username string, space bool, n ...int) error {
 				hide = false
 			}
 			if !hide {
-				output, err := PrintLinkAndPreview(msgid, username, space)
+				output, timestamp, err := PrintLinkAndPreview(msgid, username, space)
 				if err != nil {
 					fmt.Println(err)
 					return nil
 				}
-				msgs = append(msgs, output)
+				msgs = append(msgs, Preview{output, timestamp})
 			}
 		}
 		return nil
@@ -418,18 +421,8 @@ func WalkTag(tagName, username string, space bool, n ...int) error {
         return err
     }
 	sortByTime := func(i, j int) bool {
-		timeRegex := regexp.MustCompile(`\d{4}-\d{2}-\d{2} \d{2}:\d{2} (AM|PM)`)
-		strI := timeRegex.FindString(msgs[i])
-		strJ := timeRegex.FindString(msgs[j])
-        timeFormat := "2006-01-02 03:04 PM"
-        timeI, err := time.Parse(timeFormat, strI)
-		if err != nil {
-			fmt.Println("Error sorting by time", err)
-		}
-        timeJ, err := time.Parse(timeFormat, strJ)
-		if err != nil {
-			fmt.Println("Error sorting by time", err)
-		}
+        timeI := msgs[i].Timestamp
+        timeJ := msgs[j].Timestamp
         return timeI.After(timeJ)
     }
 	// Sort the outputs slice
@@ -444,7 +437,7 @@ func WalkTag(tagName, username string, space bool, n ...int) error {
 
 	// Print the sorted outputs
 	for _, output := range msgs[:limit] {
-        fmt.Println(output)
+        fmt.Println(output.Text)
     }
 
     return nil
