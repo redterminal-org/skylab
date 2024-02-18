@@ -94,7 +94,7 @@ func deleteMail() {
 				}
 				defer resp.Body.Close()
 			}
-			fmt.Printf("30 /%s/trash\r\n", skylabPath)
+			fmt.Printf("30 %s/trash\r\n", skylabPath)
 		}
 	} else {
 		fmt.Print("20 text/gemini\r\n")

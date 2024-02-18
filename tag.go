@@ -32,7 +32,8 @@ func tag() {
 	}
 	var msgid string
 	if skylabPath != "" {
-		msgid = strings.TrimPrefix(path, "/"+skylabPath+"/tag/")
+		skylabPath = "/"+skylabPath
+		msgid = strings.TrimPrefix(path, skylabPath+"/tag/")
 	} else {
 		msgid = strings.TrimPrefix(path, "/tag/")
 	}
@@ -67,7 +68,7 @@ func tag() {
 				fmt.Printf("Error: Could not tag as %s.\n", query)
 				fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 			} else {
-				fmt.Printf("30 /%s/tag/%s\r\n", skylabPath, msgid)
+				fmt.Printf("30 %s/tag/%s\r\n", skylabPath, msgid)
 				return
 			}
 		} else {
@@ -76,7 +77,7 @@ func tag() {
 				fmt.Printf("Error: Could not tag as %s.\n", query)
 				fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 			} else {
-				fmt.Printf("30 /%s/tag/%s\r\n", skylabPath, msgid)
+				fmt.Printf("30 %s/tag/%s\r\n", skylabPath, msgid)
 			}
 		}
 	} else {
@@ -93,16 +94,16 @@ func tag() {
 				} else {
 					actionName = "Remove"
 				}
-				fmt.Printf("=> /%s/tag/%s?%s 🏷️ %s tag %s\n", skylabPath, msgid, option, actionName, option)
+				fmt.Printf("=> %s/tag/%s?%s 🏷️ %s tag %s\n", skylabPath, msgid, option, actionName, option)
 			}
-			fmt.Printf("=> /%s/tag/%s?new 🏷️ Assign new tag\n", skylabPath, msgid)
+			fmt.Printf("=> %s/tag/%s?new 🏷️ Assign new tag\n", skylabPath, msgid)
 			return
 		} else if query == "new" {
 			fmt.Print("10 Enter name for new tag (you may use letters, digits, underscores, and dashes):\r\n")
 		} else {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println("The tag", query, "is reserved.")
-			fmt.Printf("=> /%s/tags 🏷️ tags", skylabPath)
+			fmt.Printf("=> %s/tags 🏷️ tags", skylabPath)
 		}
 	}
 }

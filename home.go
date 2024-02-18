@@ -77,18 +77,18 @@ func home() {
 //		fmt.Println("Error counting Trash:")
 //		fmt.Println(err)
 //	}
-	fmt.Printf("=> /%s/inbox 📪 Inbox%s\n", skylabPath, inboxCount)
-	fmt.Printf("=> /%s/compose/new ✍️ Compose\n", skylabPath)
+	fmt.Printf("=> %s/inbox 📪 Inbox%s\n", skylabPath, inboxCount)
+	fmt.Printf("=> %s/compose/new ✍️ Compose\n", skylabPath)
 //	fmt.Printf("=> archive 🗄️ Archive%s\n", archiveCount)
-	fmt.Printf("=> /%s/archive 🗄️ Archive\n", skylabPath)
+	fmt.Printf("=> %s/archive 🗄️ Archive\n", skylabPath)
 //	fmt.Printf("=> sent 📤 Sent%s\n", sentCount)
-	fmt.Printf("=> /%s/sent ☞ Sent\n", skylabPath)
-	fmt.Printf("=> /%s/drafts 📝 Drafts%s\n", skylabPath, draftsCount)
+	fmt.Printf("=> %s/sent ☞ Sent\n", skylabPath)
+	fmt.Printf("=> %s/drafts 📝 Drafts%s\n", skylabPath, draftsCount)
 //	fmt.Printf("=> trash 🗑️ Trash%s\n", trashCount)
-	fmt.Printf("=> /%s/trash 🗑️ Trash\n", skylabPath)
-	fmt.Printf("=> /%s/tags 🏷️ Tags\n", skylabPath)
-	fmt.Printf("=> /%s/settings ⚙️ Settings\n", skylabPath)
+	fmt.Printf("=> %s/trash 🗑️ Trash\n", skylabPath)
+	fmt.Printf("=> %s/tags 🏷️ Tags\n", skylabPath)
+	fmt.Printf("=> %s/settings ⚙️ Settings\n", skylabPath)
 	if !cfg.AutoFetch {
-		fmt.Printf("=> /%s?fetch 🔃 Check for New Mail", skylabPath)
+		fmt.Printf("=> %s?fetch 🔃 Check for New Mail", skylabPath)
 	}
 }

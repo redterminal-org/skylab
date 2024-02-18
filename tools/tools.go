@@ -160,13 +160,16 @@ func GetMessageLinkLine(message Skymail, msgid, username string) (string, error)
 		return "", fmt.Errorf("Couldn't export site-wide config:", err)
 	}
 	skylabPath := sitecfg.SkylabPath
+	if skylabPath != "" {
+		skylabPath = "/"+skylabPath
+	}
 	location, err := time.LoadLocation(cfg.Timezone)
 	if err != nil {
 		return "", fmt.Errorf("Error loading timezone:", err)
 	}
 	ts := message.Timestamps[0].In(location)
 	// Create string
-	linkString := fmt.Sprintf("=> /%s/mail?%s %s %s — %s: %s", skylabPath, msgid, icon, ts.Format("2006-01-02 03:04 PM"), IsolateAddress(message.Senders[0]), subject)
+	linkString := fmt.Sprintf("=> %s/mail?%s %s %s — %s: %s", skylabPath, msgid, icon, ts.Format("2006-01-02 03:04 PM"), IsolateAddress(message.Senders[0]), subject)
 	return linkString, nil
 }
 

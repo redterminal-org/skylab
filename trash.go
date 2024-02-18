@@ -35,7 +35,7 @@ func trash() {
 			if err := tools.Tag(query, "Trash", username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Println("Error: Could not move to Trash:", err)
-				fmt.Printf("=> /%s/inbox 📪 Inbox\n", skylabPath)
+				fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 				return
 			}
 			fmt.Printf("30 /%s\r\n", skylabPath)
@@ -43,10 +43,10 @@ func trash() {
 			if err := tools.Untag(query, "Trash", username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")
 				fmt.Println("Error: Could not remove from Trash:", err)
-				fmt.Printf("=> /%s/inbox 📪 Inbox\n", skylabPath)
+				fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 				return
 			}
-			fmt.Printf("30 /%s/trash\r\n", skylabPath)
+			fmt.Printf("30 %s/trash\r\n", skylabPath)
 		}
 	} else {
 		fmt.Print("20 text/gemini\r\n")

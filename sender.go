@@ -64,5 +64,5 @@ func sender() {
 		fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 		return
 	}
-	fmt.Printf("30 /%s/mail?%s\r\n", skylabPath, msgid)
+	fmt.Printf("30 %s/mail?%s\r\n", skylabPath, msgid)
 }

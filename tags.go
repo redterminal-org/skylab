@@ -17,6 +17,9 @@ func tags() {
 		return
 	}
 	skylabPath := sitecfg.SkylabPath
+	if skylabPath != "" {
+		skylabPath = "/"+skylabPath
+	}
 	options, err := tools.ListTags(username)
 	if query != "" {
 		realTag := false
@@ -27,7 +30,7 @@ func tags() {
 			}
 		}
 		if !realTag {
-			fmt.Printf("30 /%s/tags\r\n", skylabPath)
+			fmt.Printf("30 %s/tags\r\n", skylabPath)
 			return
 		}
 		if err != nil {
@@ -44,7 +47,7 @@ func tags() {
 		fmt.Println("# Tags 🏷️")
 		for _, option := range options {
 			tagCount, _ := tools.CountTags(option, username)
-			fmt.Printf("=> /%s/tags?%s 🏷️ %s%s\n", skylabPath, option, option, tagCount)
+			fmt.Printf("=> %s/tags?%s 🏷️ %s%s\n", skylabPath, option, option, tagCount)
 		}
 	}
 }

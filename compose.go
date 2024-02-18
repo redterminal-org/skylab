@@ -31,7 +31,8 @@ func compose() {
 	}
 	skylabPath := sitecfg.SkylabPath
 	if skylabPath != "" {
-		path = strings.TrimPrefix(path, "/" + skylabPath)
+		skylabPath = "/"+skylabPath
+		path = strings.TrimPrefix(path, skylabPath)
 	}
 	cfg, err := config.ExportConfig(username)
 	if err != nil {
@@ -69,7 +70,7 @@ func compose() {
 			fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 			return
 		}
-		fmt.Printf("30 /%s/compose/%s\r\n", skylabPath, msgid)
+		fmt.Printf("30 %s/compose/%s\r\n", skylabPath, msgid)
 		return
 	} else if strings.HasPrefix(path, "/compose/edit-subject") {
 		msgid := strings.TrimPrefix(path, "/compose/edit-subject/")
@@ -95,7 +96,7 @@ func compose() {
 				fmt.Println("Error writing to file:", err)
 				return
 			}
-			fmt.Printf("30 /%s/compose/%s\r\n", skylabPath, msgid)
+			fmt.Printf("30 %s/compose/%s\r\n", skylabPath, msgid)
 		} else {
 			fmt.Print("10 Enter message subject:\r\n")
 		}
@@ -124,7 +125,7 @@ func compose() {
 				fmt.Println("Error writing to file:", err)
 				return
 			}
-			fmt.Printf("30 /%s/compose/%s\r\n", skylabPath, msgid)
+			fmt.Printf("30 %s/compose/%s\r\n", skylabPath, msgid)
 		} else {
 			fmt.Print("10 Enter message recipients as address and name separated by a single space, with multiple recipients separated by commas:\r\n")
 		}
@@ -172,7 +173,7 @@ func compose() {
 				fmt.Println("Error writing to file:", err)
 				return
 			}
-			fmt.Printf("30 /%s/compose/%s\r\n", skylabPath, msgid)
+			fmt.Printf("30 %s/compose/%s\r\n", skylabPath, msgid)
 		} else {
 			fmt.Print("10 Enter new text:\r\n")
 		}
@@ -183,7 +184,7 @@ func compose() {
 		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
-			fmt.Printf("30 /%s/\r\n")
+			fmt.Printf("30 %s/\r\n")
 			return
 		}
 		if query != "" {
@@ -207,7 +208,7 @@ func compose() {
 				fmt.Println("Error writing to file:", err)
 				return
 			}
-			fmt.Printf("30 /%s/compose/%s\r\n", skylabPath, msgid)
+			fmt.Printf("30 %s/compose/%s\r\n", skylabPath, msgid)
 		} else {
 			fmt.Print("10 Enter replacement text ('X' to delete block):\r\n")
 		}
@@ -217,7 +218,7 @@ func compose() {
 		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
-			fmt.Printf("30 /%s/\r\n", skylabPath)
+			fmt.Printf("30 %s/\r\n", skylabPath)
 			return
 		}
 		message, _ := tools.ParseSkymail(filename)
@@ -243,7 +244,7 @@ func compose() {
 		fmt.Printf("=> edit-recipients/%s  ✏️ Edit Recipients\n", msgid)
 		if message.MessageBody == "" {
 			fmt.Printf("=> add-text/1/%s  ✏️ Edit Message Text\n", msgid)
-			fmt.Printf("=> /%s/mail?%s 👁️ Preview and Send\n", skylabPath, msgid)
+			fmt.Printf("=> %s/mail?%s 👁️ Preview and Send\n", skylabPath, msgid)
 			return
 		}
 		fmt.Printf("=> add-text/1/%s 📃 Insert text\n", msgid)
@@ -262,6 +263,6 @@ func compose() {
 		}
 		result := strings.Join(lines, "\n")
 		fmt.Println(result)
-		fmt.Printf("=> /%s/mail?%s 👁️ Preview and Send\n", skylabPath, msgid)
+		fmt.Printf("=> %s/mail?%s 👁️ Preview and Send\n", skylabPath, msgid)
 	}
 }
