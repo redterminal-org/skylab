@@ -1,6 +1,6 @@
 module git.sr.ht/~satchlj/skylab
 
-go 1.20.13
+go 1.20
 
 require (
 	github.com/clseibold/go-gemini v0.0.0-20240104162028-d0ebc8fd9e3f
