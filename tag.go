@@ -45,12 +45,8 @@ func tag() {
 		}
 	}
 	if _, err := os.Stat(filename); err != nil || validTag != true {
-		fmt.Print("20 text/gemini\r\n COMPLAIN\n", err, "\n")
-		fmt.Println(path)
-		fmt.Println(validTag)
-		fmt.Println(query)
-		fmt.Println(msgid)
-		fmt.Printf("30 /%s\r\n", skylabPath)
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Printf("Tag %s is not allowed.\n", query)
 		return
 	}
 	reservedTags := []string{"", "Inbox", "Archive", "Trash", "Sent", "Unread", "Drafts", "new"}
