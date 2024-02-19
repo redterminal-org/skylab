@@ -1,3 +1,7 @@
+// Skylab is a Misfin client with a CGI gemini frontend.
+// Most CGI endpoints are written in their own file in the main package.
+// Many useful functions are in their own packages (tools, send, config, etc)
+
 package main
 
 import (
@@ -8,6 +12,7 @@ import (
 	"git.sr.ht/~satchlj/skylab/config"
 )
 
+// Authenticates user and determines which CGI function to call based off of request path
 func main() {
 	query := os.Getenv("QUERY_STRING")
 	path := os.Getenv("PATH_INFO")
