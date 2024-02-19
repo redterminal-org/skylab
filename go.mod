@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	git.sr.ht/~satchlj/skylab v1.0.0
 	golang.org/x/net v0.15.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 )
