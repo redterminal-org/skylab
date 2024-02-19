@@ -381,12 +381,13 @@ func HasTag(msgid, tagName, username string) (bool, error) {
     return target != "", nil
 }
 
+type Preview struct {
+	Text  string
+	Timestamp time.Time
+}
+
 func WalkTag(tagName, username string, space bool, n ...int) error {
 	dirName := filepath.Join("..", "users", username, "tags", tagName)
-	type Preview struct {
-        Text  string
-        Timestamp time.Time
-    }
 	var msgs []Preview
 	err := filepath.Walk(dirName, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

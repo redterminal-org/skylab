@@ -86,6 +86,7 @@ func home() {
 	fmt.Printf("=> %s/drafts 📝 Drafts%s\n", skylabPath, draftsCount)
 //	fmt.Printf("=> trash 🗑️ Trash%s\n", trashCount)
 	fmt.Printf("=> %s/trash 🗑️ Trash\n", skylabPath)
+	fmt.Printf("=> %s/search 🔎 Search\n", skylabPath)
 	fmt.Printf("=> %s/tags 🏷️ Tags\n", skylabPath)
 	fmt.Printf("=> %s/settings ⚙️ Settings\n", skylabPath)
 	if !cfg.AutoFetch {

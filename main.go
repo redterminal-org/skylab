@@ -75,6 +75,8 @@ func main() {
 		reply()
 	} else if strings.HasPrefix(path, skylabPath+"/send") {
 		sender()
+	} else if strings.HasPrefix(path, skylabPath+"/search") {
+		search()
 	} else if strings.HasPrefix(path, skylabPath+"/sent") {
 		sent()
 	} else if strings.HasPrefix(path, skylabPath+"/settings") {
