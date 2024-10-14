@@ -95,6 +95,6 @@ func main() {
 	} else if strings.HasPrefix(path, skylabPath+"/unread") {
 		unread()
 	} else {
-		fmt.Print("51 Skylab doesn't know what you're looking for. If you think this is an error, send mail to mail@satch.xyz\r\n")
+		fmt.Printf("51 Skylab doesn't know what you're looking for at '%s'. If you think this is an error, send mail to mail@satch.xyz.\r\n", path)
 	}
 }
