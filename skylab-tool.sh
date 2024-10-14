@@ -76,6 +76,7 @@ GMAPPort: 1958
 GMAPHost: $host
 TagSync: false
 DisplayNumber: 4
+LastFetched: "2006-01-02 15:04:05"
 # Add other configuration fields as needed
 EOF
 
