@@ -1,6 +1,6 @@
 # Skylab Misfin Client
 
-Version: v1.1.0
+Version: v1.2.0
 
 Skylab is a Misfin client with a Gemini frontend.
 
