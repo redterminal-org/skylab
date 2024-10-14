@@ -102,7 +102,7 @@ func mail() {
 			}
 			if sent {
                 if cfg.MisfinLink {
-                    fmt.Printf("=> %s Quick Follow Up\n")
+                    fmt.Printf("=> %s Quick Follow Up\n", tools.BuildMisfinURL(message.Recipients, message.Subject, quoteText))
                 }
 				fmt.Printf("=> compose/new/%s 📝 Follow Up\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
