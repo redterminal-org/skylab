@@ -16,6 +16,9 @@ import (
 func main() {
 	query := os.Getenv("QUERY_STRING")
 	path := os.Getenv("PATH_INFO")
+    if !strings.HasPrefix(path, "/") {
+        path = "/" + path
+    }
 	if os.Getenv("TLS_CLIENT_HASH") == "" {
 		if query != "login" {
 			fmt.Print("20 text/gemini\r\n")

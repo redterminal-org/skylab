@@ -29,7 +29,9 @@ func settings() {
 	if skylabPath != "" {
 		skylabPath = "/"+skylabPath
 		path = strings.TrimPrefix(path, skylabPath)
-	}
+	} else if !strings.HasPrefix(path, "/") {
+        path = "/" + path
+    }
 	switch path {
 	case "/settings/fetch-address":
 		if !sitecfg.ExposeSettings {
@@ -180,13 +182,22 @@ func settings() {
 	case "/settings/password":
 		password, err := tools.GenerateOneTimePassword(username)
 		if err != nil {
-			fmt.Println("Couldn't generate a one time password:", err)
+			fmt.Println("20 text/gemini\r\nCouldn't generate a one time password:", err)
 			return
 		}
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("Your one-time password is:", password)
 		fmt.Println("This is the last time it will be shown. You can have multiple one-time passwords at a time, but that's probably a bad idea. Each password can be used exactly once.")
 		return
+    case "/settings/clear-passwords":
+        if err := tools.ClearTempPasswords(username); err != nil {
+            fmt.Println("20 text/gemini\r\nCouldn't clear your passwords", err)
+            return
+        }
+        fmt.Print("20 text/gemini\r\n")
+        fmt.Println("Your temporary passwords were cleared.")
+        fmt.Printf("=> %s/settings ⚙️ Settings\n", skylabPath)
+        fmt.Printf("=> %s/ 🏠 Go Home", skylabPath)
 	default:
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("# Edit Settings ⚙️")
@@ -205,10 +216,11 @@ func settings() {
 			fmt.Println("You can ignore this section if you're not using multiple clients with the same server")
 			fmt.Printf("=> %s/settings/gmap-host Hostname of GMAP misfin server\n", skylabPath)
 			fmt.Printf("=> %s/settings/gmap-port Port number of GMAP misfin server (1958 by default)\n", skylabPath)
-			fmt.Printf("=> %s/settings/tag-sync Tell the server when you modify message tags (sync unread status, etc)\n", skylabPath)
+			// fmt.Printf("=> %s/settings/tag-sync Tell the server when you modify message tags (sync unread status, etc)\n", skylabPath)
 		}
 		fmt.Println("### Gemini client certificates for Skylab")
 		fmt.Printf("=> %s/settings/password Get a temporary password\n(so that you can add a new gemini client certificate to your account)\n", skylabPath)
+		fmt.Printf("=> %s/settings/clear-passwords Clear all previously created temporary passwords\n", skylabPath)
 		fmt.Println("### Bug Reports and Feature Requests")
 		fmt.Println("=> gemini://bbs.geminispace.org/s/Skylab Submit bug reports and feature requests here")
 	}

@@ -674,6 +674,48 @@ func GenerateOneTimePassword(username string) (string, error) {
 	return password, nil
 }
 
+func ClearTempPasswords(username string) error {
+	// Define the path to the passwords file
+	filename := "../passwords.yaml"
+
+	// Check if the file exists
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		return fmt.Errorf("passwords file does not exist")
+	}
+
+	// Read the current passwords from the file
+	yamlFile, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return fmt.Errorf("failed to read passwords file: %w", err)
+	}
+
+	// Unmarshal the existing passwords into a map
+	userHashes := make(map[string]string)
+	if err := yaml.Unmarshal(yamlFile, &userHashes); err != nil {
+		return fmt.Errorf("failed to unmarshal passwords data: %w", err)
+	}
+
+	// Remove all password hashes associated with the given username
+	for hash, user := range userHashes {
+		if user == username {
+			delete(userHashes, hash)
+		}
+	}
+
+	// Marshal the updated map back to YAML format
+	updatedYAML, err := yaml.Marshal(&userHashes)
+	if err != nil {
+		return fmt.Errorf("failed to marshal updated passwords data: %w", err)
+	}
+
+	// Write the updated YAML back to the file
+	if err := ioutil.WriteFile(filename, updatedYAML, 0644); err != nil {
+		return fmt.Errorf("failed to write updated passwords file: %w", err)
+	}
+
+	return nil
+}
+
 // generateRandomPassword generates a random password.
 func generateRandomPassword() string {
 	rand.Seed(time.Now().UnixNano())
