@@ -12,6 +12,7 @@ import (
 	"io"
 	"io/ioutil"
 	"sort"
+    "net/url"
 
 	"github.com/clseibold/go-gemini"
 	"gopkg.in/yaml.v2"
@@ -103,6 +104,83 @@ func IsolateAddress(input string) string {
 		return input
 	}
     return input[:spaceIndex]
+}
+
+func PrependPrefixToLines(body string) string {
+	lines := strings.Split(body, "\n")
+    for len(lines) > 0 && lines[len(lines)-1] == "" {
+		lines = lines[:len(lines)-1]
+	}
+	for i, line := range lines {
+		lines[i] = "> " + line
+	}
+	return strings.Join(lines, "\n")
+}
+
+// CustomQueryEscape ensures that spaces are encoded as %20 instead of +.
+func CustomQueryEscape(input string) string {
+	escaped := url.QueryEscape(input)
+	return strings.ReplaceAll(escaped, "+", "%20")
+}
+
+// CropToLastEncodedBoundary ensures the URL string doesn't cut off in the middle of a percent-encoded sequence.
+func CropToLastEncodedBoundary(urlStr string, maxLength int) string {
+	if len(urlStr) <= maxLength {
+		return urlStr
+	}
+
+	// Crop the string back to a point where it doesn't cut a percent-encoded character
+	trimmed := urlStr[:maxLength]
+
+	// Ensure we don't end in the middle of a percent-encoded sequence (e.g., "%2")
+	if strings.HasSuffix(trimmed, "%") {
+		return trimmed[:maxLength-1]
+	}
+	if strings.HasSuffix(trimmed, "%2") || strings.HasSuffix(trimmed, "%3") || strings.HasSuffix(trimmed, "%4") || strings.HasSuffix(trimmed, "%5") || strings.HasSuffix(trimmed, "%6") || strings.HasSuffix(trimmed, "%7") || strings.HasSuffix(trimmed, "%8") || strings.HasSuffix(trimmed, "%9") {
+		return trimmed[:maxLength-2]
+	}
+
+	return trimmed
+}
+
+func BuildMisfinURL(senders []string, subject, body string) string {
+	// Step 1: Split senders and isolate addresses
+//	var addresses []string
+//	for _, sender := range senders {
+//		addresses = append(addresses, IsolateAddress(sender))
+//	}
+//	addressPath := strings.Join(addresses, ",")
+    addressPath := IsolateAddress(senders[0])
+	// Step 2: Prepare query parameters (if any)
+	var query string
+	if subject != "" || body != "" {
+		// Initialize the query with a ?
+		query = "?"
+	}
+
+	// Step 3: Preprocess and encode subject
+	if subject != "" {
+		// Subject needs to start with "# " and end with a newline
+		encodedSubject := CustomQueryEscape("# " + subject)
+		query += encodedSubject
+	}
+
+	// Step 4: Encode body and append to query
+	if body != "" {
+        var newline string
+		if subject != "" {
+            newline = "\n\n\n"
+		} else {
+            newline = "\n\n"
+        }
+        preprocessedBody := PrependPrefixToLines(body)
+		encodedBody := CustomQueryEscape(newline + preprocessedBody)
+		query += encodedBody
+	}
+
+	// Step 5: Build the final URL string
+    fullURL := "misfin:" + addressPath + query
+    return CropToLastEncodedBoundary(fullURL, 2000)
 }
 
 func PrintLinkAndPreview(msgid, username string, space bool) (string, time.Time, error) {

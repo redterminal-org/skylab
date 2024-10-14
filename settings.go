@@ -33,6 +33,46 @@ func settings() {
         path = "/" + path
     }
 	switch path {
+    case "/settings/quote-reply":
+        if query == "true" {
+			if err := config.Set(username, "QuoteReply", true); err != nil {
+				fmt.Println("Couldn't set the config value:", err)
+				return
+			}
+			fmt.Printf("30 %s/settings\r\n", skylabPath)
+			return
+		}
+		if query == "false" {
+			if err := config.Set(username, "QuoteReply", false); err != nil {
+				fmt.Println("Couldn't set the config value:", err)
+				return
+			}
+			fmt.Printf("30 %s/settings\r\n", skylabPath)
+			return
+		} else {
+			fmt.Print("10 Please enter 'true' or 'false':\r\n")
+			return
+		}
+    case "/settings/misfin-link":
+        if query == "true" {
+			if err := config.Set(username, "MisfinLink", true); err != nil {
+				fmt.Println("Couldn't set the config value:", err)
+				return
+			}
+			fmt.Printf("30 %s/settings\r\n", skylabPath)
+			return
+		}
+		if query == "false" {
+			if err := config.Set(username, "MisfinLink", false); err != nil {
+				fmt.Println("Couldn't set the config value:", err)
+				return
+			}
+			fmt.Printf("30 %s/settings\r\n", skylabPath)
+			return
+		} else {
+			fmt.Print("10 Please enter 'true' or 'false':\r\n")
+			return
+		}
 	case "/settings/fetch-address":
 		if !sitecfg.ExposeSettings {
 			fmt.Printf("30 /%s\r\n", skylabPath)
@@ -202,7 +242,11 @@ func settings() {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("# Edit Settings ⚙️")
 		fmt.Println("### Client behavior")
-		fmt.Printf("=> %s/settings/autofetch Set autofetch true/false\n", skylabPath)
+		fmt.Printf("=> %s/settings/autofetch Fetch new messages every page load\n", skylabPath)
+        fmt.Printf("=> %s/settings/misfin-link Use misfin: links for quick reply\n", skylabPath)
+        if cfg.MisfinLink {
+            fmt.Printf("=> %s/settings/quote-reply Quote previous message in replies\n", skylabPath)
+        }
 		fmt.Printf("=> %s/settings/timezone Set your tz database time zone (currently set to '%s')\n", skylabPath, cfg.Timezone)
 		fmt.Println("### Display options")
 		fmt.Printf("=> %s/settings/home-display Set max number of messages to display on homepage (0 to disable)\n", skylabPath)

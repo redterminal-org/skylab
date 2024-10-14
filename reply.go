@@ -17,6 +17,9 @@ func reply() {
 	username, _ := tools.Authenticate()
 	query := os.Getenv("QUERY_STRING")
 	path := os.Getenv("PATH_INFO")
+    if !strings.HasPrefix(path, "/") {
+        path = "/" + path
+    }
 	if strings.Contains(path, "..") {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("That path is not allowed")

@@ -19,6 +19,8 @@ type Config struct {
 	TagSync				bool	`yaml:"TagSync"`
 	GMAPHost			string	`yaml:"GMAPHost"`
 	GMAPPort			string	`yaml:"GMAPPort"`
+    MisfinLink          bool    `yaml:"MisfinLink"`
+    QuoteReply          bool    `yaml:"QuoteReply"`
 	// Add other configuration fields as needed
 }
 

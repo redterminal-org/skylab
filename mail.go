@@ -18,6 +18,11 @@ func mail() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
+    cfg, err := config.ExportConfig(username)
+	if err != nil {
+		fmt.Println("Couldn't get the config info:", err)
+		return
+	}
 	skylabPath := sitecfg.SkylabPath
 	if query != "" {
 		if strings.Contains(query, "..") {
@@ -62,9 +67,19 @@ func mail() {
 			fmt.Printf("To: %s\n\n", recipients)
 		}
 		fmt.Println(message.MessageBody)
+        var quickReplyLink string
+        var quoteText string
+        if cfg.QuoteReply {
+            quoteText = message.MessageBody
+        }
+        if cfg.MisfinLink {
+            quickReplyLink = tools.BuildMisfinURL(message.Senders, message.Subject, quoteText)
+        } else {
+            quickReplyLink = "reply/" + query + " ✍️"
+        }
 		if trashed, _ := tools.HasTag(query, "Trash", username); !trashed {
 			if unarchived, _ := tools.HasTag(query, "Inbox", username); unarchived {
-				fmt.Printf("=> reply/%s ✍️ Quick Reply\n", query)
+				fmt.Printf("=> %s Quick Reply\n", quickReplyLink)
 				fmt.Printf("=> compose/new/%s 📝 Draft Reply\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> archive?%s 📥 Archive\n", query)
@@ -75,7 +90,7 @@ func mail() {
 				return
 			}
 			if archived, _ := tools.HasTag(query, "Archive", username); archived {
-				fmt.Printf("=> reply/%s ✍️ Quick Reply\n", query)
+				fmt.Printf("=> %s Quick Reply\n", quickReplyLink)
 				fmt.Printf("=> compose/new/%s 📝 Draft Reply\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> archive?%s 📤 Move to Inbox\n", query)
@@ -86,6 +101,9 @@ func mail() {
 				return
 			}
 			if sent {
+                if cfg.MisfinLink {
+                    fmt.Printf("=> %s Quick Follow Up\n")
+                }
 				fmt.Printf("=> compose/new/%s 📝 Follow Up\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)

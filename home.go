@@ -77,8 +77,11 @@ func home() {
 //		fmt.Println("Error counting Trash:")
 //		fmt.Println(err)
 //	}
-	fmt.Printf("=> %s/inbox 📪 Inbox%s\n", skylabPath, inboxCount)
-	fmt.Printf("=> %s/compose/new ✍️ Compose\n", skylabPath)
+    fmt.Printf("=> %s/inbox 📪 Inbox%s\n", skylabPath, inboxCount)
+    if cfg.MisfinLink {
+        fmt.Printf("=> misfin: Compose\n")
+    }
+    fmt.Printf("=> %s/compose/new ✍️ Compose Draft\n", skylabPath)
 //	fmt.Printf("=> archive 🗄️ Archive%s\n", archiveCount)
 	fmt.Printf("=> %s/archive 🗄️ Archive\n", skylabPath)
 //	fmt.Printf("=> sent 📤 Sent%s\n", sentCount)
