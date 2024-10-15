@@ -636,6 +636,7 @@ type UserHashes map[string]string
 func Authenticate() (string, error) {
 	filename := "../users.yaml"
 	hash := os.Getenv("TLS_CLIENT_HASH")
+    hash = strings.TrimPrefix(hash, "ALGO:")
 	yamlFile, err := ioutil.ReadFile(filename)
 	if err != nil {
 		fmt.Println("Could not read users file.")
@@ -657,6 +658,7 @@ func Authenticate() (string, error) {
 func AddUserHash(username string) error {
 	filename := "../users.yaml"
 	hash := os.Getenv("TLS_CLIENT_HASH")
+    hash = strings.TrimPrefix(hash, "ALGO:")
 	yamlFile, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
     if err != nil {
         return err
