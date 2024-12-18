@@ -1,10 +1,10 @@
 package main
 
 import (
-    "fmt"
-	"os"
+	"fmt"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
+	"os"
 )
 
 func tags() {
@@ -18,7 +18,7 @@ func tags() {
 	}
 	skylabPath := sitecfg.SkylabPath
 	if skylabPath != "" {
-		skylabPath = "/"+skylabPath
+		skylabPath = "/" + skylabPath
 	}
 	options, err := tools.ListTags(username)
 	if query != "" {

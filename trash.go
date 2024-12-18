@@ -1,12 +1,12 @@
 package main
 
 import (
-    "fmt"
-	"strings"
-	"os"
-	"path/filepath"
+	"fmt"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 func trash() {

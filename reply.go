@@ -1,25 +1,24 @@
 package main
 
 import (
-    "fmt"
-	"strings"
-	"os"
-	"time"
-	"io/ioutil"
-	"path/filepath"
-	"net/url"
-	"git.sr.ht/~satchlj/skylab/tools"
+	"fmt"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/send"
+	"git.sr.ht/~satchlj/skylab/tools"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 )
 
 func reply() {
 	username, _ := tools.Authenticate()
 	query := os.Getenv("QUERY_STRING")
 	path := os.Getenv("PATH_INFO")
-    if !strings.HasPrefix(path, "/") {
-        path = "/" + path
-    }
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
 	if strings.Contains(path, "..") {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("That path is not allowed")
@@ -65,13 +64,13 @@ func reply() {
 			return
 		}
 		replyMessage := tools.Skymail{
-			Senders:		[]string{address},
-			Recipients:		[]string{message.Senders[0]},
-			Timestamps:		[]time.Time{time.Now().UTC()},
-			Subject:		message.Subject,
-			MessageBody:	decodedQuery,
+			Senders:     []string{address},
+			Recipients:  []string{message.Senders[0]},
+			Timestamps:  []time.Time{time.Now().UTC()},
+			Subject:     message.Subject,
+			MessageBody: decodedQuery,
 		}
-		if err := send.SendSkymail(replyMessage, cfg.CertFilename); err != nil {
+		if err := send.Skymail(replyMessage, cfg.CertFilename); err != nil {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println(err)
 			fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
@@ -79,7 +78,7 @@ func reply() {
 		}
 		replyMsgid := tools.GenerateID(replyMessage.Timestamps[0], tools.IsolateAddress(replyMessage.Senders[0]))
 		filename := filepath.Join("..", "users", username, "STORE", replyMsgid+".msfn")
-		if err := ioutil.WriteFile(filename, []byte(send.SkymailToString(replyMessage)), 0644); err != nil {
+		if err := os.WriteFile(filename, []byte(send.SkymailToString(replyMessage)), 0644); err != nil {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println(err)
 			fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)

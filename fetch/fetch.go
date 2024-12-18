@@ -1,64 +1,70 @@
 package fetch
+
 import (
+	"bufio"
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
-    "bufio"
-    "errors"
-	"path/filepath"
 
-	"github.com/clseibold/go-gemini"
-    "git.sr.ht/~satchlj/skylab/tools"
 	"git.sr.ht/~satchlj/skylab/config"
+	"git.sr.ht/~satchlj/skylab/tools"
+	"github.com/clseibold/go-gemini"
 )
 
 type Message struct {
 	Senders     []string
 	Timestamps  []time.Time
-    FullText    string
-	MessageBody	string
-	Msgid		string
-	Tags		[]string
-	Untags		[]string
-	Subject		string
-	Recipients	[]string
+	FullText    string
+	MessageBody string
+	Msgid       string
+	Tags        []string
+	Untags      []string
+	Subject     string
+	Recipients  []string
 }
 
-// FetchGembox fetches gembox from the given address using the client certificate
-func FetchGembox(username string) error {
+// Gembox fetches gembox from the given address using the client certificate
+func Gembox(username string) error {
 	// Read certificate file
-    cfg, err := config.ExportConfig(username)
+	cfg, err := config.ExportConfig(username)
 	if err != nil {
-		return fmt.Errorf("Couldn't get the config info: %w", err)
+		return fmt.Errorf("couldn't get the config info: %w", err)
 	}
-	certFile, err := ioutil.ReadFile(cfg.CertFilename)
+	certFile, err := os.ReadFile(cfg.CertFilename)
 	if err != nil {
-		return fmt.Errorf("Couldn't read cert: %w (%s)", err, cfg.CertFilename)
+		return fmt.Errorf("couldn't read cert: %w (%s)", err, cfg.CertFilename)
 	}
 
 	// Fetch gembox from Gemini server
 	client := gemini.DefaultClient
 	resp, err := client.FetchWithCert(cfg.GeminiFetchAddress, certFile, certFile)
 	if err != nil {
-		return fmt.Errorf("Couldn't fetch gembox file: %w", err)
+		return fmt.Errorf("couldn't fetch gembox file: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			// do something
+		}
+	}(resp.Body)
 
 	// Read gembox data
-	gemboxData, err := ioutil.ReadAll(resp.Body)
+	gemboxData, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("Errno 123: %w")
+		return fmt.Errorf("errno 123: %w", err)
 	}
 
 	// Parse gembox
 	gbox, err := ParseGembox(string(gemboxData))
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 	if string(gemboxData) == "" {
-		return errors.New("Empty gembox.")
+		return errors.New("empty gembox")
 	}
 
 	// Create STORE directory if it doesn't exist
@@ -66,7 +72,7 @@ func FetchGembox(username string) error {
 	if _, err := os.Stat(inboxDir); os.IsNotExist(err) {
 		err := os.Mkdir(inboxDir, 0755)
 		if err != nil {
-			return fmt.Errorf("Couldn't make inboxDir: %w", err)
+			return fmt.Errorf("couldn't make inboxDir: %w", err)
 		}
 	}
 	// Process gemmails
@@ -79,7 +85,7 @@ func FetchGembox(username string) error {
 		msgid := tools.GenerateID(mail.Timestamps[0], tools.IsolateAddress(mail.Senders[0]))
 		filename := msgid + ".msfn"
 		// Save message to file
-		err := ioutil.WriteFile(inboxDir+filename, []byte(mail.FullText), 0644)
+		err := os.WriteFile(inboxDir+filename, []byte(mail.FullText), 0644)
 		if err != nil {
 			fmt.Println("Error saving message:", err)
 		}
@@ -93,9 +99,9 @@ func FetchGembox(username string) error {
 		// fmt.Println("Message saved:", filename)
 	}
 	if err := config.Set(username, "LastFetched", time.Now().UTC().Format("2006-01-02 15:04:05")); err != nil {
-		return fmt.Errorf("Could not write to config file: %w", err)
+		return fmt.Errorf("could not write to config file: %w", err)
 	}
-    return nil
+	return nil
 }
 
 // isNewMessage checks if the message is new (not already saved)
@@ -135,14 +141,14 @@ func ParseGembox(gemboxData string) ([]Message, error) {
 				message.Senders = strings.Split(strings.TrimPrefix(line, "< "), ",")
 			case 2:
 				timestampStrings := strings.Split(strings.TrimPrefix(line, "@ "), ",")
-                for _, ts := range timestampStrings {
-                    ts = strings.TrimSpace(ts)
-                    timestamp, err := time.Parse(time.RFC3339, ts)
-                    if err != nil {
-                        return nil, err
-                    }
-                    message.Timestamps = append(message.Timestamps, timestamp)
-                }
+				for _, ts := range timestampStrings {
+					ts = strings.TrimSpace(ts)
+					timestamp, err := time.Parse(time.RFC3339, ts)
+					if err != nil {
+						return nil, err
+					}
+					message.Timestamps = append(message.Timestamps, timestamp)
+				}
 			}
 			linesCounter++
 		}
@@ -160,16 +166,16 @@ func ParseGembox(gemboxData string) ([]Message, error) {
 	return messages, nil
 }
 
-// FetchGembox fetches gembox from the given address using the client certificate
-func FetchGemboxGMAP(username string) error {
+// GemboxGMAP fetches gembox from the given address using the client certificate
+func GemboxGMAP(username string) error {
 	// Read config and cert file
-    cfg, err := config.ExportConfig(username)
+	cfg, err := config.ExportConfig(username)
 	if err != nil {
-		return fmt.Errorf("Couldn't get the config info: %w", err)
+		return fmt.Errorf("couldn't get the config info: %w", err)
 	}
-	certFile, err := ioutil.ReadFile(cfg.CertFilename)
+	certFile, err := os.ReadFile(cfg.CertFilename)
 	if err != nil {
-		return fmt.Errorf("Couldn't read cert: %w (%s)", err, cfg.CertFilename)
+		return fmt.Errorf("couldn't read cert: %w (%s)", err, cfg.CertFilename)
 	}
 
 	// Fetch gembox from Gemini server
@@ -178,36 +184,41 @@ func FetchGemboxGMAP(username string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			// Do a thing
+		}
+	}(resp.Body)
 
 	// Read gembox data
-	gemboxData, err := ioutil.ReadAll(resp.Body)
+	gemboxData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
 
 	// Parse gembox
 	lastFetched, err := time.Parse("2006-01-02 15:04:05", cfg.LastFetched)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 	gbox, err := ParseGemboxGMAP(string(gemboxData), lastFetched)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
 	// Create STORE directory if it doesn't exist
 	inboxDir := filepath.Join("..", "users", username, "STORE") + string(filepath.Separator)
 	if _, err := os.Stat(inboxDir); os.IsNotExist(err) {
 		err := os.Mkdir(inboxDir, 0755)
 		if err != nil {
-			return fmt.Errorf("Couldn't make STORE: %w", err)
+			return fmt.Errorf("couldn't make STORE: %w", err)
 		}
 	}
 	// Process gemmails
 	for i, mail := range gbox {
 		if len(mail.Timestamps) == 0 {
-			return fmt.Errorf("There are no timestamps for message %s, %d of %d", mail.Msgid, i, len(gbox))
+			return fmt.Errorf("there are no timestamps for message %s, %d of %d", mail.Msgid, i, len(gbox))
 		}
 		// Check if message is new (not already saved)
 		if !isNewMessageGMAP(mail, lastFetched, username) {
@@ -241,7 +252,7 @@ func FetchGemboxGMAP(username string) error {
 		fullText := builder.String()
 		filename := mail.Msgid + ".msfn"
 		// Save message to file
-		err := ioutil.WriteFile(inboxDir+filename, []byte(fullText), 0644)
+		err := os.WriteFile(inboxDir+filename, []byte(fullText), 0644)
 		if err != nil {
 			fmt.Println("Error saving message:", err)
 		}
@@ -254,9 +265,9 @@ func FetchGemboxGMAP(username string) error {
 		// fmt.Println("Message saved:", filename)
 	}
 	if err := config.Set(username, "LastFetched", time.Now().UTC().Format("2006-01-02 15:04:05")); err != nil {
-		return fmt.Errorf("Could not write to config file: %w", err)
+		return fmt.Errorf("could not write to config file: %w", err)
 	}
-    return nil
+	return nil
 }
 
 // isNewMessage checks if the message is new (not already saved)
@@ -293,7 +304,7 @@ func ParseGemboxGMAP(gemboxData string, lastFetched time.Time) ([]Message, error
 			message = Message{} // Start a new message
 			body = false
 			line = strings.TrimPrefix(line, "[")
-    		line = strings.TrimSuffix(line, "]")
+			line = strings.TrimSuffix(line, "]")
 			message.Msgid = line
 		} else {
 			if !reading {
@@ -301,7 +312,7 @@ func ParseGemboxGMAP(gemboxData string, lastFetched time.Time) ([]Message, error
 			}
 			if !body {
 				if strings.HasPrefix(line, "#") {
-					body = true;
+					body = true
 					if line == "#" || line == "# " {
 						continue
 					}
@@ -321,11 +332,11 @@ func ParseGemboxGMAP(gemboxData string, lastFetched time.Time) ([]Message, error
 						message.Timestamps = append(message.Timestamps, timestamp)
 					}
 					if len(message.Timestamps) == 0 {
-						return nil, errors.New("Something's a bit wrong with parsing the timestamps")
+						return nil, errors.New("something's a bit wrong with parsing the timestamps")
 					}
 				} else {
 					if !strings.Contains(line, ":") {
-						return nil, errors.New("Tagline improperly formatted")
+						return nil, errors.New("tagline improperly formatted")
 					}
 					parts := strings.SplitN(line, ":", 2)
 					tagName := parts[0]
@@ -358,7 +369,7 @@ func ParseGemboxGMAP(gemboxData string, lastFetched time.Time) ([]Message, error
 	if body {
 		messages = append(messages, message)
 		if len(message.Timestamps) == 0 {
-			return nil, errors.New("Something's a bit wrong with the last message")
+			return nil, errors.New("something's a bit wrong with the last message")
 		}
 	} else if reading {
 		return nil, errors.New("last message is not complete")

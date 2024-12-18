@@ -1,16 +1,16 @@
 package main
 
 import (
-    "fmt"
-    "os"
-    "path/filepath"
-    "strings"
-//    "time"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	//    "time"
 	"net/url"
 	"sort"
 
-	"git.sr.ht/~satchlj/skylab/tools"
 	"git.sr.ht/~satchlj/skylab/send"
+	"git.sr.ht/~satchlj/skylab/tools"
 )
 
 type SearchOptions struct {
@@ -18,9 +18,9 @@ type SearchOptions struct {
 	To      []string
 	Subject []string
 	Body    []string
-	Tags	[]string
-	All		[]string
-	Not		*SearchOptions
+	Tags    []string
+	All     []string
+	Not     *SearchOptions
 }
 
 func search() {
@@ -36,47 +36,48 @@ func search() {
 		fmt.Print("10 Search mail\r\n")
 		return
 	}
-    searchOptions := parseQuery(query)
-    msgs, err := searchMessages(searchOptions)
-    if err != nil {
-        fmt.Println("Error:", err)
-        return
-    }
+	searchOptions := parseQuery(query)
+	msgs, err := searchMessages(searchOptions)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
 
-    fmt.Print("20 text/gemini\r\n")
+	fmt.Print("20 text/gemini\r\n")
 	fmt.Println("=> ? 🔎 Search again")
-	fmt.Println("=> ./ 🏠 Home\n")
+	fmt.Println("=> ./ 🏠 Home")
+	fmt.Println()
 	for _, output := range msgs {
-        fmt.Println(output.Text)
-    }
+		fmt.Println(output.Text)
+	}
 	fmt.Println("\n=> gemini://satch.xyz/skylab/search.gmi How to search Skylab")
 }
 
 func searchMessages(options SearchOptions) ([]tools.Preview, error) {
-    var matches []string
+	var matches []string
 	username, _ := tools.Authenticate()
-    directory := filepath.Join("..", "users", username, "STORE")
+	directory := filepath.Join("..", "users", username, "STORE")
 
-    err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
-        if err != nil {
-            return err
-        }
-        if info.IsDir() {
-            return nil
-        }
-        message, err := tools.ParseSkymail(path)
-        if err != nil {
-            return err
-        }
+	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		message, err := tools.ParseSkymail(path)
+		if err != nil {
+			return err
+		}
 
-        if match(message, options) {
+		if match(message, options) {
 			symlinkName := filepath.Base(path)
 			msgid := strings.TrimSuffix(symlinkName, ".msfn")
-            matches = append(matches, msgid)
-        }
+			matches = append(matches, msgid)
+		}
 
-        return nil
-    })
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +92,7 @@ func searchMessages(options SearchOptions) ([]tools.Preview, error) {
 			if err != nil {
 				return nil, err
 			}
-			msgs = append(msgs, tools.Preview{output, timestamp})
+			msgs = append(msgs, tools.Preview{Text: output, Timestamp: timestamp})
 		}
 	}
 	sortByTime := func(i, j int) bool {
@@ -106,71 +107,71 @@ func searchMessages(options SearchOptions) ([]tools.Preview, error) {
 }
 
 func match(message tools.Skymail, options SearchOptions) bool {
-    // Check if any 'Not' options match the message
-    if options.Not != nil && match(message, *options.Not) {
-        return false
-    }
+	// Check if any 'Not' options match the message
+	if options.Not != nil && match(message, *options.Not) {
+		return false
+	}
 
-    // Check if 'From' option matches any sender
-    if len(options.From) > 0 {
+	// Check if 'From' option matches any sender
+	if len(options.From) > 0 {
 		matchedFrom := false
-        for _, sender := range message.Senders {
-            for _, from := range options.From {
-                if strings.Contains(strings.ToLower(sender), strings.ToLower(from)) {
-                    matchedFrom = true
-                    break
-                }
-            }
-        }
-        if !matchedFrom {
-            return false
-        }
-    }
+		for _, sender := range message.Senders {
+			for _, from := range options.From {
+				if strings.Contains(strings.ToLower(sender), strings.ToLower(from)) {
+					matchedFrom = true
+					break
+				}
+			}
+		}
+		if !matchedFrom {
+			return false
+		}
+	}
 
-    // Check if 'To' option matches any recipient
-    if len(options.To) > 0 {
-        matchedTo := false
-        for _, recipient := range message.Recipients {
-            for _, to := range options.To {
-                if strings.Contains(strings.ToLower(recipient), strings.ToLower(to)) {
-                    matchedTo = true
-                    break
-                }
-            }
-        }
-        if !matchedTo {
-            return false
-        }
-    }
+	// Check if 'To' option matches any recipient
+	if len(options.To) > 0 {
+		matchedTo := false
+		for _, recipient := range message.Recipients {
+			for _, to := range options.To {
+				if strings.Contains(strings.ToLower(recipient), strings.ToLower(to)) {
+					matchedTo = true
+					break
+				}
+			}
+		}
+		if !matchedTo {
+			return false
+		}
+	}
 
-    // Check if 'Subject' option matches the message subject
-    if len(options.Subject) > 0 {
-        matched := false
-        for _, subject := range options.Subject {
-            if strings.Contains(strings.ToLower(message.Subject), strings.ToLower(subject)) {
-                matched = true
-                break
-            }
-        }
-        if !matched {
-            return false
-        }
-    }
+	// Check if 'Subject' option matches the message subject
+	if len(options.Subject) > 0 {
+		matched := false
+		for _, subject := range options.Subject {
+			if strings.Contains(strings.ToLower(message.Subject), strings.ToLower(subject)) {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			return false
+		}
+	}
 
-    // Check if 'Body' option matches the message body
-    if len(options.Body) > 0 {
-        matched := false
-        for _, body := range options.Body {
-            if strings.Contains(strings.ToLower(message.MessageBody), strings.ToLower(body)) {
-                matched = true
-                break
-            }
-        }
-        if !matched {
-            return false
-        }
-    }
-    // Add similar checks for other fields like 'Tags' and 'All' if needed
+	// Check if 'Body' option matches the message body
+	if len(options.Body) > 0 {
+		matched := false
+		for _, body := range options.Body {
+			if strings.Contains(strings.ToLower(message.MessageBody), strings.ToLower(body)) {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			return false
+		}
+	}
+	// Add similar checks for other fields like 'Tags' and 'All' if needed
 	if len(options.All) > 0 {
 		wholeMessage := send.SkymailToString(message)
 		matched := false
@@ -184,8 +185,8 @@ func match(message tools.Skymail, options SearchOptions) bool {
 			return false
 		}
 	}
-    // If all checks passed, return true
-    return true
+	// If all checks passed, return true
+	return true
 }
 
 func parseQuery(query string) SearchOptions {

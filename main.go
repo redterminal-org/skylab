@@ -5,20 +5,20 @@
 package main
 
 import (
-    "fmt"
+	"fmt"
+	"git.sr.ht/~satchlj/skylab/config"
+	"git.sr.ht/~satchlj/skylab/tools"
 	"os"
 	"strings"
-	"git.sr.ht/~satchlj/skylab/tools"
-	"git.sr.ht/~satchlj/skylab/config"
 )
 
 // Authenticates user and determines which CGI function to call based off of request path
 func main() {
 	query := os.Getenv("QUERY_STRING")
 	path := os.Getenv("PATH_INFO")
-    if !strings.HasPrefix(path, "/") {
-        path = "/" + path
-    }
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
 	if os.Getenv("TLS_CLIENT_HASH") == "" {
 		if query != "login" {
 			fmt.Print("20 text/gemini\r\n")
@@ -65,7 +65,7 @@ func main() {
 	if skylabPath != "" {
 		skylabPath = "/" + skylabPath
 	}
-	if path == skylabPath || path == skylabPath + "/" {
+	if path == skylabPath || path == skylabPath+"/" {
 		home()
 	} else if strings.HasPrefix(path, skylabPath+"/mail") {
 		mail()

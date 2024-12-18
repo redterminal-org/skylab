@@ -1,13 +1,13 @@
 package main
 
 import (
-    "fmt"
-	"strings"
-	"os"
-	"unicode"
-	"path/filepath"
-	"git.sr.ht/~satchlj/skylab/tools"
+	"fmt"
 	"git.sr.ht/~satchlj/skylab/config"
+	"git.sr.ht/~satchlj/skylab/tools"
+	"os"
+	"path/filepath"
+	"strings"
+	"unicode"
 )
 
 func tag() {
@@ -32,7 +32,7 @@ func tag() {
 	}
 	var msgid string
 	if skylabPath != "" {
-		skylabPath = "/"+skylabPath
+		skylabPath = "/" + skylabPath
 		msgid = strings.TrimPrefix(path, skylabPath+"/tag/")
 	} else {
 		msgid = strings.TrimPrefix(path, "/tag/")

@@ -1,22 +1,22 @@
 package send
 
 import (
-	"fmt"
-	"io/ioutil"
-	"strings"
-	"time"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
+	"os"
 	"strconv"
+	"strings"
+	"time"
 
-    "git.sr.ht/~satchlj/skylab/tools"
-	"gitlab.com/clseibold/misfin-server/misfin_client"
+	"git.sr.ht/~satchlj/skylab/tools"
 	"gitlab.com/clseibold/misfin-server/gemmail"
+	"gitlab.com/clseibold/misfin-server/misfin_client"
 )
 
-func SendSkymail(skymail tools.Skymail, certFilename string) error {
+func Skymail(skymail tools.Skymail, certFilename string) error {
 	recipients := skymail.Recipients
-	certFile, err := ioutil.ReadFile(certFilename)
+	certFile, err := os.ReadFile(certFilename)
 	if err != nil {
 		return err
 	}
@@ -57,14 +57,13 @@ func SendSkymail(skymail tools.Skymail, certFilename string) error {
 			} else {
 				return fmt.Errorf("Qwackers! It didn't work: %d %s\n", resp.Status, resp.Meta)
 			}
-			break
 		}
 	}
 	return nil
 }
 
 func GetAddressFromCert(filename string) (string, error) {
-	pemData, err := ioutil.ReadFile(filename)
+	pemData, err := os.ReadFile(filename)
 	if err != nil {
 		return "", err
 	}
@@ -95,11 +94,11 @@ func SkymailToString(mail tools.Skymail) string {
 	recipientStr := strings.Join(mail.Recipients, ", ")
 
 	// Format Timestamps into ISO-8601 format and combine into a single string separated by commas
-	var timestampStrs []string
+	var timestampStrings []string
 	for _, ts := range mail.Timestamps {
-		timestampStrs = append(timestampStrs, ts.Format(time.RFC3339))
+		timestampStrings = append(timestampStrings, ts.Format(time.RFC3339))
 	}
-	timestampsStr := strings.Join(timestampStrs, ", ")
+	timestampsStr := strings.Join(timestampStrings, ", ")
 
 	// Combine Subject with "# " prepended on its own line
 	subjectStr := "# " + mail.Subject

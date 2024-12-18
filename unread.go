@@ -1,11 +1,11 @@
 package main
 
 import (
-    "fmt"
-	"os"
+	"fmt"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
-    "path/filepath"
+	"os"
+	"path/filepath"
 )
 
 func unread() {

@@ -1,12 +1,13 @@
 package main
+
 import (
 	"fmt"
-	"strings"
-	"os"
-	"net/url"
-	"strconv"
-	"git.sr.ht/~satchlj/skylab/tools"
 	"git.sr.ht/~satchlj/skylab/config"
+	"git.sr.ht/~satchlj/skylab/tools"
+	"net/url"
+	"os"
+	"strconv"
+	"strings"
 )
 
 func settings() {
@@ -14,7 +15,7 @@ func settings() {
 	query := os.Getenv("QUERY_STRING")
 	decodedQuery, _ := url.QueryUnescape(query)
 	path := os.Getenv("PATH_INFO")
-    cfg, err := config.ExportConfig(username)
+	cfg, err := config.ExportConfig(username)
 	if err != nil {
 		fmt.Println("Couldn't get the config info:", err)
 		return
@@ -27,14 +28,14 @@ func settings() {
 	}
 	skylabPath := sitecfg.SkylabPath
 	if skylabPath != "" {
-		skylabPath = "/"+skylabPath
+		skylabPath = "/" + skylabPath
 		path = strings.TrimPrefix(path, skylabPath)
 	} else if !strings.HasPrefix(path, "/") {
-        path = "/" + path
-    }
+		path = "/" + path
+	}
 	switch path {
-    case "/settings/quote-reply":
-        if query == "true" {
+	case "/settings/quote-reply":
+		if query == "true" {
 			if err := config.Set(username, "QuoteReply", true); err != nil {
 				fmt.Println("Couldn't set the config value:", err)
 				return
@@ -53,8 +54,8 @@ func settings() {
 			fmt.Print("10 Please enter 'true' or 'false':\r\n")
 			return
 		}
-    case "/settings/misfin-link":
-        if query == "true" {
+	case "/settings/misfin-link":
+		if query == "true" {
 			if err := config.Set(username, "MisfinLink", true); err != nil {
 				fmt.Println("Couldn't set the config value:", err)
 				return
@@ -229,24 +230,24 @@ func settings() {
 		fmt.Println("Your one-time password is:", password)
 		fmt.Println("This is the last time it will be shown. You can have multiple one-time passwords at a time, but that's probably a bad idea. Each password can be used exactly once.")
 		return
-    case "/settings/clear-passwords":
-        if err := tools.ClearTempPasswords(username); err != nil {
-            fmt.Println("20 text/gemini\r\nCouldn't clear your passwords", err)
-            return
-        }
-        fmt.Print("20 text/gemini\r\n")
-        fmt.Println("Your temporary passwords were cleared.")
-        fmt.Printf("=> %s/settings ⚙️ Settings\n", skylabPath)
-        fmt.Printf("=> %s/ 🏠 Go Home", skylabPath)
+	case "/settings/clear-passwords":
+		if err := tools.ClearTempPasswords(username); err != nil {
+			fmt.Println("20 text/gemini\r\nCouldn't clear your passwords", err)
+			return
+		}
+		fmt.Print("20 text/gemini\r\n")
+		fmt.Println("Your temporary passwords were cleared.")
+		fmt.Printf("=> %s/settings ⚙️ Settings\n", skylabPath)
+		fmt.Printf("=> %s/ 🏠 Go Home", skylabPath)
 	default:
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("# Edit Settings ⚙️")
 		fmt.Println("### Client behavior")
 		fmt.Printf("=> %s/settings/autofetch Fetch new messages every page load\n", skylabPath)
-        fmt.Printf("=> %s/settings/misfin-link Use misfin: links for quick reply\n", skylabPath)
-        if cfg.MisfinLink {
-            fmt.Printf("=> %s/settings/quote-reply Quote previous message in replies\n", skylabPath)
-        }
+		fmt.Printf("=> %s/settings/misfin-link Use misfin: links for quick reply\n", skylabPath)
+		if cfg.MisfinLink {
+			fmt.Printf("=> %s/settings/quote-reply Quote previous message in replies\n", skylabPath)
+		}
 		fmt.Printf("=> %s/settings/timezone Set your tz database time zone (currently set to '%s')\n", skylabPath, cfg.Timezone)
 		fmt.Println("### Display options")
 		fmt.Printf("=> %s/settings/home-display Set max number of messages to display on homepage (0 to disable)\n", skylabPath)

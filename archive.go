@@ -1,13 +1,13 @@
 package main
 
 import (
-    "fmt"
-	"strings"
-	"time"
-	"os"
-    "path/filepath"
+	"fmt"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 )
 
 func archive() {

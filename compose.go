@@ -1,16 +1,15 @@
 package main
 
 import (
-    "fmt"
-	"strings"
-	"os"
-	"time"
-	"io/ioutil"
-	"net/url"
-    "path/filepath"
-	"git.sr.ht/~satchlj/skylab/tools"
+	"fmt"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/send"
+	"git.sr.ht/~satchlj/skylab/tools"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 )
 
 func compose() {
@@ -18,9 +17,9 @@ func compose() {
 	query := os.Getenv("QUERY_STRING")
 	decodedQuery, _ := url.QueryUnescape(query)
 	path := os.Getenv("PATH_INFO")
-    if !strings.HasPrefix(path, "/") {
-        path = "/" + path
-    }
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
 	if strings.Contains(path, "..") {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("That path is not allowed")
@@ -34,7 +33,7 @@ func compose() {
 	}
 	skylabPath := sitecfg.SkylabPath
 	if skylabPath != "" {
-		skylabPath = "/"+skylabPath
+		skylabPath = "/" + skylabPath
 		path = strings.TrimPrefix(path, skylabPath)
 	}
 	cfg, err := config.ExportConfig(username)
@@ -46,8 +45,8 @@ func compose() {
 		ref := strings.TrimPrefix(path, "/compose/new/")
 		address, err := send.GetAddressFromCert(cfg.CertFilename)
 		message := tools.Skymail{
-			Senders:		[]string{address},
-			Timestamps:		[]time.Time{time.Now().UTC()},
+			Senders:    []string{address},
+			Timestamps: []time.Time{time.Now().UTC()},
 		}
 		msgid := tools.GenerateID(message.Timestamps[0], tools.IsolateAddress(message.Senders[0]))
 		refFilename := filepath.Join("..", "users", username, "STORE", ref+".msfn")
@@ -61,7 +60,7 @@ func compose() {
 			message.Subject = refMessage.Subject
 		}
 		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
-		if err := ioutil.WriteFile(filename, []byte(send.SkymailToString(message)), 0644); err != nil {
+		if err := os.WriteFile(filename, []byte(send.SkymailToString(message)), 0644); err != nil {
 			fmt.Print("20 text/gemini\r\n")
 			fmt.Println(err)
 			fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
@@ -84,7 +83,7 @@ func compose() {
 			return
 		}
 		if query != "" {
-			content, err := ioutil.ReadFile(filename)
+			content, err := os.ReadFile(filename)
 			if err != nil {
 				fmt.Println("Error reading file:", err)
 				return
@@ -94,7 +93,7 @@ func compose() {
 				lines[3] = "# " + decodedQuery
 			}
 			newMessage := strings.Join(lines, "\n")
-			err = ioutil.WriteFile(filename, []byte(newMessage), 0644)
+			err = os.WriteFile(filename, []byte(newMessage), 0644)
 			if err != nil {
 				fmt.Println("Error writing to file:", err)
 				return
@@ -109,11 +108,11 @@ func compose() {
 		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
-			fmt.Print("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 /%s\r\n", skylabPath)
 			return
 		}
 		if query != "" {
-			content, err := ioutil.ReadFile(filename)
+			content, err := os.ReadFile(filename)
 			if err != nil {
 				fmt.Println("Error reading file:", err)
 				return
@@ -123,7 +122,7 @@ func compose() {
 				lines[1] = decodedQuery
 			}
 			newMessage := strings.Join(lines, "\n")
-			err = ioutil.WriteFile(filename, []byte(newMessage), 0644)
+			err = os.WriteFile(filename, []byte(newMessage), 0644)
 			if err != nil {
 				fmt.Println("Error writing to file:", err)
 				return
@@ -140,11 +139,11 @@ func compose() {
 		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
-			fmt.Print("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 /%s\r\n", skylabPath)
 			return
 		}
 		if query != "" {
-			content, err := ioutil.ReadFile(filename)
+			content, err := os.ReadFile(filename)
 			if err != nil {
 				fmt.Println("Error reading file:", err)
 				return
@@ -171,7 +170,7 @@ func compose() {
 				lines = append(lines, fmt.Sprintf("  \n%s\n  \n", decodedQuery))
 			}
 			newMessage := strings.Join(lines, "\n")
-			err = ioutil.WriteFile(filename, []byte(newMessage), 0644)
+			err = os.WriteFile(filename, []byte(newMessage), 0644)
 			if err != nil {
 				fmt.Println("Error writing to file:", err)
 				return
@@ -187,11 +186,11 @@ func compose() {
 		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
-			fmt.Printf("30 %s/\r\n")
+			fmt.Printf("30 %s/\r\n", skylabPath)
 			return
 		}
 		if query != "" {
-			content, err := ioutil.ReadFile(filename)
+			content, err := os.ReadFile(filename)
 			if err != nil {
 				fmt.Println("Error reading file:", err)
 				return
@@ -206,7 +205,7 @@ func compose() {
 				}
 			}
 			newMessage := strings.Join(blocks, "\n  \n")
-			err = ioutil.WriteFile(filename, []byte(newMessage), 0644)
+			err = os.WriteFile(filename, []byte(newMessage), 0644)
 			if err != nil {
 				fmt.Println("Error writing to file:", err)
 				return

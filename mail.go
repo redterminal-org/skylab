@@ -1,12 +1,12 @@
 package main
 
 import (
-    "fmt"
-	"os"
-	"strings"
-	"path/filepath"
+	"fmt"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 func mail() {
@@ -18,7 +18,7 @@ func mail() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-    cfg, err := config.ExportConfig(username)
+	cfg, err := config.ExportConfig(username)
 	if err != nil {
 		fmt.Println("Couldn't get the config info:", err)
 		return
@@ -67,16 +67,16 @@ func mail() {
 			fmt.Printf("To: %s\n\n", recipients)
 		}
 		fmt.Println(message.MessageBody)
-        var quickReplyLink string
-        var quoteText string
-        if cfg.QuoteReply {
-            quoteText = message.MessageBody
-        }
-        if cfg.MisfinLink {
-            quickReplyLink = tools.BuildMisfinURL(message.Senders, message.Subject, quoteText)
-        } else {
-            quickReplyLink = "reply/" + query + " ✍️"
-        }
+		var quickReplyLink string
+		var quoteText string
+		if cfg.QuoteReply {
+			quoteText = message.MessageBody
+		}
+		if cfg.MisfinLink {
+			quickReplyLink = tools.BuildMisfinURL(message.Senders, message.Subject, quoteText)
+		} else {
+			quickReplyLink = "reply/" + query + " ✍️"
+		}
 		if trashed, _ := tools.HasTag(query, "Trash", username); !trashed {
 			if unarchived, _ := tools.HasTag(query, "Inbox", username); unarchived {
 				fmt.Printf("=> %s Quick Reply\n", quickReplyLink)
@@ -101,9 +101,9 @@ func mail() {
 				return
 			}
 			if sent {
-                if cfg.MisfinLink {
-                    fmt.Printf("=> %s Quick Follow Up\n", tools.BuildMisfinURL(message.Recipients, message.Subject, quoteText))
-                }
+				if cfg.MisfinLink {
+					fmt.Printf("=> %s Quick Follow Up\n", tools.BuildMisfinURL(message.Recipients, message.Subject, quoteText))
+				}
 				fmt.Printf("=> compose/new/%s 📝 Follow Up\n", query)
 				fmt.Printf("=> unread?%s ◉ Mark Unread\n", query)
 				fmt.Printf("=> trash?%s 🗑️ Delete\n", query)

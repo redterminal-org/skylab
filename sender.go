@@ -1,15 +1,14 @@
 package main
 
 import (
-    "fmt"
-	"strings"
-	"os"
-	"io/ioutil"
-    "path/filepath"
-	"time"
-	"git.sr.ht/~satchlj/skylab/tools"
+	"fmt"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/send"
+	"git.sr.ht/~satchlj/skylab/tools"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 )
 
 func sender() {
@@ -40,13 +39,13 @@ func sender() {
 	}
 	message.MessageBody = strings.ReplaceAll(message.MessageBody, "\n  \n", "\n\n")
 	message.Timestamps[0] = time.Now().UTC()
-	if err := send.SendSkymail(message, cfg.CertFilename); err != nil {
+	if err := send.Skymail(message, cfg.CertFilename); err != nil {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println(err)
 		fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 		return
 	}
-	if err := ioutil.WriteFile(filename, []byte(send.SkymailToString(message)), 0644); err != nil {
+	if err := os.WriteFile(filename, []byte(send.SkymailToString(message)), 0644); err != nil {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println(err)
 		fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)

@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"strings"
-	"os"
-	"io/ioutil"
-	"path/filepath"
-	"github.com/clseibold/go-gemini"
 	"git.sr.ht/~satchlj/skylab/config"
 	"git.sr.ht/~satchlj/skylab/tools"
+	"github.com/clseibold/go-gemini"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 func deleteMail() {
@@ -65,10 +65,10 @@ func deleteMail() {
 			}
 			if cfg.TagSync {
 				client := gemini.DefaultClient
-				certFile, err := ioutil.ReadFile(cfg.CertFilename)
+				certFile, err := os.ReadFile(cfg.CertFilename)
 				if err != nil {
 					fmt.Print("20 text/gemini\r\n")
-					fmt.Printf("Couldn't read cert: %w (%s)\n", err, cfg.CertFilename)
+					fmt.Printf("Couldn't read cert: %s (%s)\n", err, cfg.CertFilename)
 					fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 					return
 				}
@@ -88,11 +88,13 @@ func deleteMail() {
 				resp, err := client.FetchWithCert(deletePath, certFile, certFile)
 				if err != nil || (resp.Status != 20 && resp.Status != 51) {
 					fmt.Print("20 text/gemini\r\n")
-					fmt.Printf("Couldn't delete message: %w (%s)", err, deletePath)
+					fmt.Printf("Couldn't delete message: %s (%s)", err, deletePath)
 					fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 					return
 				}
-				defer resp.Body.Close()
+				defer func(Body io.ReadCloser) {
+					_ = Body.Close()
+				}(resp.Body)
 			}
 			fmt.Printf("30 %s/trash\r\n", skylabPath)
 		}
