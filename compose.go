@@ -31,9 +31,8 @@ func compose() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-	skylabPath := sitecfg.SkylabPath
+	skylabPath := appPrefix(sitecfg.SkylabPath)
 	if skylabPath != "" {
-		skylabPath = "/" + skylabPath
 		path = strings.TrimPrefix(path, skylabPath)
 	}
 	cfg, err := config.ExportConfig(username)
@@ -79,7 +78,7 @@ func compose() {
 		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		if query != "" {
@@ -108,7 +107,7 @@ func compose() {
 		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		if query != "" {
@@ -139,7 +138,7 @@ func compose() {
 		filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 		draft, err := tools.HasTag(msgid, "Drafts", username)
 		if err != nil || draft != true {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		if query != "" {

@@ -22,7 +22,7 @@ func home() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-	skylabPath := sitecfg.SkylabPath
+	skylabPath := appPrefix(sitecfg.SkylabPath)
 	var fetchGembox func(username string) error
 	if cfg.GMAP {
 		fetchGembox = fetch.GemboxGMAP
@@ -39,7 +39,7 @@ func home() {
 	}
 
 	if query == "fetch" {
-		fmt.Printf("30 /%s\r\n", skylabPath)
+		fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 	}
 	fmt.Print("20 text/gemini\r\n")
 	if cfg.HeaderText != "" {

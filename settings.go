@@ -26,9 +26,8 @@ func settings() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-	skylabPath := sitecfg.SkylabPath
+	skylabPath := appPrefix(sitecfg.SkylabPath)
 	if skylabPath != "" {
-		skylabPath = "/" + skylabPath
 		path = strings.TrimPrefix(path, skylabPath)
 	} else if !strings.HasPrefix(path, "/") {
 		path = "/" + path
@@ -76,7 +75,7 @@ func settings() {
 		}
 	case "/settings/fetch-address":
 		if !sitecfg.ExposeSettings {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		if query != "" {
@@ -104,7 +103,7 @@ func settings() {
 		}
 	case "/settings/cert-filename":
 		if !sitecfg.ExposeSettings {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		if query != "" {
@@ -120,7 +119,7 @@ func settings() {
 		}
 	case "/settings/gmap-parse":
 		if !sitecfg.ExposeSettings {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		if query == "true" {
@@ -144,7 +143,7 @@ func settings() {
 		}
 	case "/settings/gmap-port":
 		if !sitecfg.ExposeSettings {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		_, err := strconv.Atoi(query)
@@ -161,7 +160,7 @@ func settings() {
 		}
 	case "/settings/gmap-host":
 		if !sitecfg.ExposeSettings {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		if query != "" {

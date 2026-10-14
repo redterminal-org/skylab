@@ -16,10 +16,7 @@ func tags() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-	skylabPath := sitecfg.SkylabPath
-	if skylabPath != "" {
-		skylabPath = "/" + skylabPath
-	}
+	skylabPath := appPrefix(sitecfg.SkylabPath)
 	options, err := tools.ListTags(username)
 	if query != "" {
 		realTag := false

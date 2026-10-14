@@ -24,12 +24,12 @@ func archive() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-	skylabPath := sitecfg.SkylabPath
+	skylabPath := appPrefix(sitecfg.SkylabPath)
 	if query != "" {
 		filename := filepath.Join("..", "users", username, "STORE", query+".msfn")
 		_, err := os.Stat(filename)
 		if err != nil {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		if archived, _ := tools.HasTag(query, "Archive", username); !archived {
@@ -45,7 +45,7 @@ func archive() {
 					fmt.Println("=> inbox 📪 Inbox")
 					return
 				}
-				fmt.Printf("30 /%s\r\n", skylabPath)
+				fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			}
 		} else {
 			if err := tools.Tag(query, "Inbox", username, true); err != nil {
@@ -60,7 +60,7 @@ func archive() {
 					fmt.Println("=> inbox 📪 Inbox")
 					return
 				}
-				fmt.Printf("30 /%s\r\n", skylabPath)
+				fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			}
 		}
 	} else {

@@ -31,10 +31,10 @@ func sender() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-	skylabPath := sitecfg.SkylabPath
+	skylabPath := appPrefix(sitecfg.SkylabPath)
 	message, err := tools.ParseSkymail(filename)
 	if err != nil {
-		fmt.Printf("30 /%s\r\n", skylabPath)
+		fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 		return
 	}
 	message.MessageBody = strings.ReplaceAll(message.MessageBody, "\n  \n", "\n\n")

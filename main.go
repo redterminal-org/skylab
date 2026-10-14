@@ -40,7 +40,7 @@ func main() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-	skylabPath := sitecfg.SkylabPath
+	skylabPath := appPrefix(sitecfg.SkylabPath)
 	if username == "" {
 		if query == "" {
 			fmt.Print("20 text/gemini\r\nDidn't find you anywhere in my list. If you have an account already, then you can log in with a single-use password:\n")
@@ -55,15 +55,12 @@ func main() {
 				fmt.Println("Something went wrong trying to add your cert:", err)
 				return
 			}
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 		}
 	}
 	if query == "login" {
-		fmt.Printf("30 /%s\r\n", skylabPath)
+		fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 		return
-	}
-	if skylabPath != "" {
-		skylabPath = "/" + skylabPath
 	}
 	if path == skylabPath || path == skylabPath+"/" {
 		home()

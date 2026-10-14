@@ -23,12 +23,12 @@ func trash() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-	skylabPath := sitecfg.SkylabPath
+	skylabPath := appPrefix(sitecfg.SkylabPath)
 	if query != "" {
 		filename := filepath.Join("..", "users", username, "STORE", query+".msfn")
 		_, err := os.Stat(filename)
 		if err != nil {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		if trashed, _ := tools.HasTag(query, "Trash", username); !trashed {
@@ -38,7 +38,7 @@ func trash() {
 				fmt.Printf("=> %s/inbox 📪 Inbox\n", skylabPath)
 				return
 			}
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 		} else {
 			if err := tools.Untag(query, "Trash", username, true); err != nil {
 				fmt.Print("20 text/gemini\r\n")

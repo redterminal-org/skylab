@@ -24,7 +24,7 @@ func tag() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-	skylabPath := sitecfg.SkylabPath
+	skylabPath := appPrefix(sitecfg.SkylabPath)
 	path := os.Getenv("PATH_INFO")
 	if strings.Contains(path, "..") {
 		fmt.Print("20 text/gemini\r\n")
@@ -32,7 +32,6 @@ func tag() {
 	}
 	var msgid string
 	if skylabPath != "" {
-		skylabPath = "/" + skylabPath
 		msgid = strings.TrimPrefix(path, skylabPath+"/tag/")
 	} else {
 		msgid = strings.TrimPrefix(path, "/tag/")

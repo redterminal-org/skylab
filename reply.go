@@ -42,10 +42,11 @@ func reply() {
 	} else {
 		msgid = strings.TrimPrefix(path, "/reply/")
 	}
+	skylabPath = appPrefix(skylabPath)
 	filename := filepath.Join("..", "users", username, "STORE", msgid+".msfn")
 	message, err := tools.ParseSkymail(filename)
 	if err != nil {
-		fmt.Printf("30 /%s\r\n", skylabPath)
+		fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 		return
 	}
 	if query != "" {

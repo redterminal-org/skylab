@@ -25,12 +25,12 @@ func deleteMail() {
 		fmt.Println("Couldn't export site-wide config", err)
 		return
 	}
-	skylabPath := sitecfg.SkylabPath
+	skylabPath := appPrefix(sitecfg.SkylabPath)
 	if query != "" {
 		filename := filepath.Join("..", "users", username, "STORE", query+".msfn")
 		_, err := os.Stat(filename)
 		if err != nil {
-			fmt.Printf("30 /%s\r\n", skylabPath)
+			fmt.Printf("30 %s\r\n", appPath(skylabPath, ""))
 			return
 		}
 		if err := tools.UntagAll(query, username); err != nil {
@@ -102,6 +102,6 @@ func deleteMail() {
 		fmt.Print("20 text/gemini\r\n")
 		fmt.Println("# Empty Graveyard 🪦")
 		fmt.Println("There is no trace left of your deleted messages. I'd return home if I were you:")
-		fmt.Printf("=> /%s 🏠 Home\n", skylabPath)
+		fmt.Printf("=> %s 🏠 Home\n", appPath(skylabPath, ""))
 	}
 }
