@@ -245,8 +245,22 @@ func GetMessageLinkLine(message Skymail, msgid, username string) (string, error)
 		return "", fmt.Errorf("error loading timezone: %w", err)
 	}
 	ts := message.Timestamps[0].In(location)
+	// Show the recipient for sent messages instead of the sender.
+	contact := ""
+	if sent, err := HasTag(msgid, "Sent", username); err != nil {
+		return "", fmt.Errorf("error checking whether message was sent: %w", err)
+	} else if sent {
+		if len(message.Recipients) > 0 {
+			contact = "To: " + IsolateAddress(message.Recipients[0])
+		} else {
+			contact = "To: (unknown recipient)"
+		}
+	} else if len(message.Senders) > 0 {
+		contact = IsolateAddress(message.Senders[0])
+	}
+
 	// Create string
-	linkString := fmt.Sprintf("=> %s/mail?%s %s %s — %s: %s", skylabPath, msgid, icon, ts.Format("2006-01-02 03:04 PM"), IsolateAddress(message.Senders[0]), subject)
+	linkString := fmt.Sprintf("=> %s/mail?%s %s %s — %s: %s", skylabPath, msgid, icon, ts.Format("2006-01-02 03:04 PM"), contact, subject)
 	return linkString, nil
 }
 
